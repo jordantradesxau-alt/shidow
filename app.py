@@ -12,6 +12,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from supabase import create_client, Client
 import re
 
 # ============================================================
@@ -23,6 +24,11 @@ app = Flask(__name__)
 # Environment Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['DATABASE_URL'] = os.environ.get('DATABASE_URL')
+
+# Supabase configuration
+SUPABASE_URL = os.environ.get('SUPABASE_URL')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # ============================================================
 # DATABASE CONNECTION HELPER
