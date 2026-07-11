@@ -203,8 +203,11 @@
           {% for dest in featured_destinations %}
           <li class="dest-slide" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
             <div class="dest-card">
-              {% set image_path = dest.cover_image if dest.cover_image else 'placeholder.jpg' %}
-              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/' + image_path) }}');"></div>
+              {% if dest.cover_image %}
+                  <div class="dest-image" style="background-image: url('{{ dest.cover_image }}');"></div>
+              {% else %}
+                  <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/placeholder.jpg') }}');"></div>
+              {% endif %}
               <div class="dest-info">
                 <h3>{{ dest.country }}</h3>
                 <p>{{ dest.location }} &bull; {{ dest.category }}</p>
@@ -283,8 +286,11 @@
           {% for pkg in featured_packages %}
           <li class="package-slide">
             <div class="package-card" data-aos="zoom-in" data-aos-delay="{{ loop.index0 * 100 }}">
-              {% set pkg_image = pkg.image if pkg.image else 'placeholder-package.jpg' %}
-              <div class="package-image" style="background-image: url('{{ url_for('static', filename='images/' + pkg_image) }}');">
+              {% if dest.cover_image %}
+                  <div class="dest-image" style="background-image: url('{{ dest.cover_image }}');"></div>
+              {% else %}
+                  <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/placeholder.jpg') }}');"></div>
+              {% endif %}
                 <span class="package-badge">{{ pkg.badge }}</span>
               </div>
               <div class="package-content">
