@@ -329,8 +329,11 @@
           <div class="destinations-grid">
             {% for dest in destinations %}
             <div class="destination-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
-              {% set image_path = dest.cover_image if dest.cover_image else 'placeholder.jpg' %}
-              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/' + image_path) }}');">
+              {% if dest.cover_image %}
+                <div class="destination-image" style="background-image: url('{{ dest.cover_image }}');">
+              {% else %}
+                <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/placeholder.jpg') }}');">
+              {% endif %}
                 {% if dest.featured %}
                 <span class="destination-badge">Featured</span>
                 {% endif %}
