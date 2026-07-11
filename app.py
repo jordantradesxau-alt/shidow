@@ -249,6 +249,51 @@ def upload_image(file, folder='destinations'):
         print(f"Upload error: {e}")
         return None
 
+
+
+
+
+@app.route('/admin/destinations/create', methods=['GET', 'POST'])
+@login_required
+def admin_destination_create():
+    if request.method == 'POST':
+        # Get form data
+        country = request.form.get('country', '').strip()
+        location = request.form.get('location', '').strip()
+        category = request.form.get('category', '').strip()
+        price_per_day = request.form.get('price_per_day', 0)
+        minimum_days = request.form.get('minimum_days', 1)
+        description = request.form.get('description', '').strip()
+        featured = request.form.get('featured') == 'on'
+        status = request.form.get('status', 'active')
+        
+        # Handle image upload
+        cover_image = None
+        if 'cover_image' in request.files:
+            file = request.files['cover_image']
+            if file and file.filename:
+                cover_image = upload_image(file, 'destinations')
+        
+        # Save to database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO destinations 
+            (country, location, category, price_per_day, minimum_days, 
+             description, cover_image, featured, status, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        """, (country, location, category, price_per_day, minimum_days, 
+              description, cover_image, featured, status))
+        conn.commit()
+        close_db_connection(conn, cursor)
+        
+        flash('Destination created successfully!', 'success')
+        return redirect(url_for('admin_destinations'))
+    
+    return render_template('admin/destination_form.html')
+
+
+
 @app.route('/admin/destinations')
 @login_required
 def admin_destinations():
@@ -336,6 +381,24 @@ def admin_destination_create():
             flash('Error creating destination. Please try again.', 'danger')
     
     return render_template('admin/destination_form.html')
+
+@app.route('/admin/destinations/<int:destination_id>/gallery', methods=['GET', 'POST'])
+@login_required
+def admin_destination_gallery(destination_id):
+    if request.method == 'POST':
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename:
+                image_url = upload_image(file, f'gallery/{destination_id}')
+                if image_url:
+                    cursor.execute("""
+                        INSERT INTO destination_gallery (destination_id, image, display_order)
+                        VALUES (%s, %s, %s)
+                    """, (destination_id, image_url, int(request.form.get('display_order', 0))))
+                    conn.commit()
+                    flash('Image uploaded successfully!', 'success')
+                else:
+                    flash('Failed to upload image.', 'danger')
 
 @app.route('/admin/destinations/edit/<int:destination_id>', methods=['GET', 'POST'])
 @login_required
