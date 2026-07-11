@@ -8,7 +8,7 @@
   <meta property="og:title" content="{% if destination %}{{ destination.country }} - {{ destination.location }}{% else %}Destination{% endif %} - Shidow TOURS" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="{% if destination %}{{ url_for('single_destination', destination_id=destination.id, _external=True) }}{% else %}{{ url_for('index', _external=True) }}{% endif %}" />
-  <meta property="og:image" content="{% if destination and destination.cover_image %}{{ url_for('static', filename='images/' + destination.cover_image, _external=True) }}{% else %}{{ url_for('static', filename='images/og-image.jpg', _external=True) }}{% endif %}" />
+  <meta property="og:image" content="{% if destination and destination.cover_image %}{{ destination.cover_image }}{% else %}{{ url_for('static', filename='images/og-image.jpg', _external=True) }}{% endif %}" />
 
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -325,7 +325,7 @@
 
   <!-- ===== DESTINATION DETAIL HERO ===== -->
   {% if destination %}
-  <section class="destination-detail-hero" style="background-image: url('{{ url_for('static', filename='images/' + (destination.cover_image if destination.cover_image else 'placeholder.jpg')) }}');">
+  <section class="destination-detail-hero" style="background-image: url('{% if destination.cover_image %}{{ destination.cover_image }}{% else %}{{ url_for('static', filename='images/placeholder.jpg') }}{% endif %}');">
     <div class="hero-overlay"></div>
     <div class="hero-content container">
       <div class="row">
@@ -387,8 +387,8 @@
             <div class="gallery-grid">
               {% for image in gallery %}
               <div class="gallery-item {% if loop.first %}gallery-main{% endif %}" 
-                   style="background-image: url('{{ url_for('static', filename='images/' + image.image) }}');"
-                   onclick="window.open('{{ url_for('static', filename='images/' + image.image) }}', '_blank');">
+                   style="background-image: url('{{ image.image }}');"
+                   onclick="window.open('{{ image.image }}', '_blank');">
               </div>
               {% endfor %}
             </div>
@@ -459,7 +459,7 @@
       <div class="related-grid">
         {% for rel in related %}
         <div class="related-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
-          <div class="related-image" style="background-image: url('{{ url_for('static', filename='images/' + (rel.cover_image if rel.cover_image else 'placeholder.jpg')) }}');"></div>
+          <div class="related-image" style="background-image: url('{% if rel.cover_image %}{{ rel.cover_image }}{% else %}{{ url_for('static', filename='images/placeholder.jpg') }}{% endif %}');"></div>
           <div class="related-info">
             <h4>{{ rel.country }}, {{ rel.location }}</h4>
             <p>{{ rel.description|truncate(60) if rel.description else '' }}</p>
