@@ -1,0 +1,185 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <div class="dashboard-welcome">
+    <h1>
+      <i class="fas fa-hand-wave" style="color: #d4af37;"></i>
+      Welcome back, {{ session.get('admin_username', 'Admin') }}!
+    </h1>
+    <p class="text-muted">Here's what's happening with your travel business today.</p>
+  </div>
+  <div class="dashboard-actions">
+    <a href="{{ url_for('admin_destination_create') }}" class="btn btn-primary">
+      <i class="fas fa-plus"></i> Add Destination
+    </a>
+    <a href="{{ url_for('admin_package_create') }}" class="btn btn-outline-primary">
+      <i class="fas fa-plus"></i> Add Package
+    </a>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(212, 175, 55, 0.1);">
+      <i class="fas fa-map-marker-alt" style="color: #d4af37;"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ total_destinations }}</h3>
+      <p>Total Destinations</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(52, 152, 219, 0.1);">
+      <i class="fas fa-box" style="color: #3498db;"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ total_packages }}</h3>
+      <p>Total Packages</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(46, 204, 113, 0.1);">
+      <i class="fas fa-star" style="color: #2ecc71;"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ featured_destinations }}</h3>
+      <p>Featured Destinations</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(231, 76, 60, 0.1);">
+      <i class="fas fa-trophy" style="color: #e74c3c;"></i>
+    </div>
+    <div class="stat-info">
+      <h3>{{ featured_packages }}</h3>
+      <p>Featured Packages</p>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h4><i class="fas fa-clock" style="color: #d4af37;"></i> Recent Destinations</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Location</th>
+                <th>Category</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dest in recent_destinations %}
+              <tr>
+                <td><strong>{{ dest.country }}</strong></td>
+                <td>{{ dest.location }}</td>
+                <td><span class="badge badge-category">{{ dest.category }}</span></td>
+                <td>
+                  {% if dest.featured %}
+                    <span class="badge badge-success"><i class="fas fa-star"></i> Featured</span>
+                  {% else %}
+                    <span class="badge badge-secondary">Standard</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">No destinations added yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h4><i class="fas fa-gift" style="color: #d4af37;"></i> Recent Packages</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Badge</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pkg in recent_packages %}
+              <tr>
+                <td><strong>{{ pkg.title }}</strong></td>
+                <td><span class="price-text">${{ pkg.price }}</span></td>
+                <td><span class="badge badge-badge">{{ pkg.badge }}</span></td>
+                <td>
+                  {% if pkg.featured %}
+                    <span class="badge badge-success"><i class="fas fa-star"></i> Featured</span>
+                  {% else %}
+                    <span class="badge badge-secondary">Standard</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="4" class="text-center text-muted">No packages added yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions-row">
+  <div class="card">
+    <div class="card-body">
+      <h5><i class="fas fa-bolt" style="color: #d4af37;"></i> Quick Actions</h5>
+      <div class="quick-actions-grid">
+        <a href="{{ url_for('admin_destination_create') }}" class="quick-action-btn">
+          <i class="fas fa-plus-circle"></i>
+          <span>New Destination</span>
+        </a>
+        <a href="{{ url_for('admin_package_create') }}" class="quick-action-btn">
+          <i class="fas fa-plus-circle"></i>
+          <span>New Package</span>
+        </a>
+        <a href="{{ url_for('admin_packages') }}" class="quick-action-btn">
+          <i class="fas fa-route"></i>
+          <span>Manage Itineraries</span>
+        </a>
+        <a href="#" class="quick-action-btn">
+          <i class="fas fa-images"></i>
+          <span>Gallery Manager</span>
+        </a>
+        <a href="{{ url_for('admin_destinations') }}" class="quick-action-btn">
+          <i class="fas fa-edit"></i>
+          <span>Edit Content</span>
+        </a>
+        <a href="{{ url_for('index') }}" target="_blank" class="quick-action-btn">
+          <i class="fas fa-eye"></i>
+          <span>View Website</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

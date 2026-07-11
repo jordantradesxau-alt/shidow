@@ -1,0 +1,178 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Gallery - {{ destination.location }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  .gallery-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    background: #e5e7eb;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+  .gallery-item:hover {
+    border-color: #d4af37;
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .gallery-item .gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .gallery-item:hover .gallery-overlay {
+    opacity: 1;
+  }
+  .gallery-item .gallery-overlay .order-badge {
+    background: rgba(212, 175, 55, 0.8);
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+  }
+  .gallery-item .gallery-overlay .delete-btn {
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+  }
+  .gallery-item .gallery-overlay .delete-btn:hover {
+    background: #ef4444;
+  }
+  .gallery-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+  }
+  .gallery-empty i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f9fafb;
+  }
+  .upload-area:hover {
+    border-color: #d4af37;
+    background: #fefcf5;
+  }
+  .upload-area input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+    margin: 12px auto;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-images" style="color: #d4af37;"></i> Gallery: {{ destination.location }}</h1>
+    <p class="text-muted">{{ destination.country }} • Manage images for this destination.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('admin_destinations') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Destinations
+    </a>
+  </div>
+</div>
+
+<!-- Upload Form -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5><i class="fas fa-upload" style="color: #d4af37;"></i> Add New Image</h5>
+    <form method="POST" class="row g-3">
+      <div class="col-md-7">
+        <input type="text" name="image_url" class="form-control" placeholder="Image filename (e.g., gallery/kenya-1.jpg)" required />
+        <small class="text-muted">Place image in static/images/ folder</small>
+      </div>
+      <div class="col-md-3">
+        <input type="number" name="display_order" class="form-control" placeholder="Display order" value="1" min="1" />
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary btn-block">
+          <i class="fas fa-plus"></i> Add Image
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Gallery Grid -->
+<div class="card">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5><i class="fas fa-images"></i> Gallery Images</h5>
+      <span class="badge badge-category">{{ gallery|length }} images</span>
+    </div>
+
+    {% if gallery %}
+    <div class="gallery-grid">
+      {% for image in gallery %}
+      <div class="gallery-item">
+        <img src="{{ url_for('static', filename='images/' + image.image) }}" alt="Gallery image {{ loop.index }}" />
+        <div class="gallery-overlay">
+          <span class="order-badge"><i class="fas fa-sort"></i> {{ image.display_order }}</span>
+          <a href="{{ url_for('admin_gallery_delete', gallery_id=image.id) }}" 
+             class="delete-btn" 
+             onclick="return confirm('Delete this image from the gallery?')">
+            <i class="fas fa-trash"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="gallery-empty">
+      <i class="fas fa-image"></i>
+      <p>No images in this gallery yet.</p>
+      <p class="text-muted small">Upload images using the form above.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Gallery Tips -->
+<div class="card mt-3">
+  <div class="card-body">
+    <h6><i class="fas fa-info-circle" style="color: #d4af37;"></i> Gallery Tips</h6>
+    <ul class="text-muted small">
+      <li>Images should be placed in the <code>static/images/</code> folder.</li>
+      <li>Use descriptive filenames (e.g., <code>kenya-maasai-mara-1.jpg</code>).</li>
+      <li>Display order controls the sequence images appear.</li>
+      <li>Upload images in the format: <code>folder/filename.jpg</code> or just <code>filename.jpg</code>.</li>
+      <li>Recommended image size: 800x600 pixels (landscape).</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

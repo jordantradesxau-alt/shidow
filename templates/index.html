@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shidow TOURS – Luxury Travel & Adventures</title>
+  <meta name="description" content="Discover the world with Shidow TOURS – curated luxury tours, safaris, and beach holidays." />
+  <meta property="og:title" content="Shidow TOURS – Luxury Travel & Adventures" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.shidowtours.com/" />
+  <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg') }}" />
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/lightslider.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/style.css') }}" />
+
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" />
+
+  <!-- Scripts (deferred for performance) -->
+  <script src="{{ url_for('static', filename='files/js/jquery.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/lightslider.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/bootstrap.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/script.js') }}" defer></script>
+
+  <style>
+    /* ===== Luxury Gold Heading ===== */
+    .luxury-heading.gold {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: linear-gradient(270deg, #b8860b, #d4af37, #f5e6b0, #d4af37, #b8860b, #8b6b0a, #b8860b);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: goldShimmer 6s ease infinite;
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+      display: inline-block;
+      padding: 0 var(--spacing-md, 16px);
+    }
+
+    @keyframes goldShimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .gold-link {
+      -webkit-text-fill-color: transparent;
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      transition: filter 0.4s ease;
+    }
+    .gold-link:hover {
+      filter: brightness(1.2);
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== Hero Background ===== */
+    .hero-video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10, 10, 10, 0.7), rgba(0, 0, 0, 0.5));
+      z-index: 0;
+    }
+
+    /* ===== Slider Fixes ===== */
+    .destinations-slider-wrapper {
+      position: relative;
+      padding: 0 40px;
+    }
+    .destinations-slider {
+      margin: 0;
+      padding: 0;
+    }
+    .dest-slide {
+      padding: 16px;
+    }
+    .packages-slider-wrapper {
+      position: relative;
+      padding: 0 40px;
+    }
+    .packages-slider {
+      margin: 0;
+      padding: 0;
+    }
+    .package-slide {
+      padding: 16px;
+    }
+
+    /* lighSlider overrides */
+    .lSAction > a {
+      background: rgba(0, 0, 0, 0.5) !important;
+      backdrop-filter: blur(4px);
+      border-radius: 50% !important;
+      width: 44px !important;
+      height: 44px !important;
+      line-height: 44px !important;
+      text-align: center;
+      color: #ffffff !important;
+      font-size: 24px !important;
+      transition: all 0.3s ease;
+    }
+    .lSAction > a:hover {
+      background: #d4af37 !important;
+      transform: scale(1.1);
+    }
+    .lSPager.lSpg > li a {
+      background: rgba(255, 255, 255, 0.4) !important;
+    }
+    .lSPager.lSpg > li.active a {
+      background: #d4af37 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== COOKIE CONSENT POPUP ===== -->
+  <div id="cookie-popup" class="cookie-popup" role="alert" aria-label="Cookie consent">
+    <p>We use cookies to enhance your experience. By continuing, you agree to our <a href="/privacy-policy">Privacy Policy</a>.</p>
+    <button id="accept-cookies" class="btn btn-primary" aria-label="Accept cookies">Accept</button>
+  </div>
+
+  <!-- ===== TOP BRAND HEADING ===== -->
+  <div class="container text-center py-3">
+    <h1 class="luxury-heading gold" aria-label="Shidow Tours">
+      <a href="/" class="gold-link">SHIDOW TOURS</a>
+    </h1>
+  </div>
+
+  <!-- ===== NAVBAR (Flask include) ===== -->
+  {% include 'navbar.html' %}
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero" id="hero" aria-label="Hero banner">
+    <div class="hero-video-placeholder"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <h1 class="hero-title">Discover the World with <br /><span>Shidow TOURS</span></h1>
+      <p class="hero-subtitle">Curated luxury tours, safaris, and beach holidays – crafted for the discerning traveler.</p>
+
+      <!-- Search Form -->
+      <form class="hero-search" id="hero-search" role="search" aria-label="Trip search">
+        <div class="search-group">
+          <label for="destination-search" class="sr-only">Destination</label>
+          <input type="text" id="destination-search" placeholder="Where to?" aria-label="Search destination" />
+        </div>
+        <div class="search-group">
+          <label for="date-search" class="sr-only">Travel date</label>
+          <input type="date" id="date-search" aria-label="Travel date" />
+        </div>
+        <div class="search-group">
+          <label for="guests-search" class="sr-only">Number of guests</label>
+          <select id="guests-search" aria-label="Number of guests">
+            <option value="1">1 Guest</option>
+            <option value="2" selected>2 Guests</option>
+            <option value="3">3 Guests</option>
+            <option value="4">4 Guests</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-search">Search Trips</button>
+      </form>
+
+      <!-- Weather Widget -->
+      <div class="weather-widget" id="weather-widget" aria-label="Weather information">
+        <span class="weather-icon" aria-hidden="true">&#9729;&#65039;</span>
+        <span class="weather-temp">24&deg;C</span>
+        <span class="weather-city">Paris, France</span>
+      </div>
+    </div>
+
+    <!-- Floating WhatsApp -->
+    <a href="#" class="whatsapp-float" aria-label="Chat on WhatsApp" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.icons8.com/color/48/000000/whatsapp.png" alt="WhatsApp" width="48" height="48" loading="lazy" />
+    </a>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top" title="Back to top">&#8593;</button>
+  </section>
+
+  <!-- ===== POPULAR DESTINATIONS (Slider - Database Driven) ===== -->
+  <section class="destinations section" id="destinations" aria-labelledby="destinations-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="destinations-title">Popular Destinations</h2>
+        <p>Handpicked places for your next luxury escape</p>
+      </div>
+
+      <div class="destinations-slider-wrapper">
+        <ul id="destinations-slider" class="destinations-slider list-unstyled">
+          {% for dest in featured_destinations %}
+          <li class="dest-slide" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}">
+            <div class="dest-card">
+              {% set image_path = dest.cover_image if dest.cover_image else 'placeholder.jpg' %}
+              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/' + image_path) }}');"></div>
+              <div class="dest-info">
+                <h3>{{ dest.country }}</h3>
+                <p>{{ dest.location }} &bull; {{ dest.category }}</p>
+                <a href="{{ url_for('single_destination', destination_id=dest.id) }}" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </li>
+          {% else %}
+          <!-- Fallback if no featured destinations -->
+          <li class="dest-slide">
+            <div class="dest-card">
+              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/kenya.jpg') }}');"></div>
+              <div class="dest-info">
+                <h3>Kenya</h3>
+                <p>Maasai Mara, Big Five, and endless savannah.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </li>
+          <li class="dest-slide">
+            <div class="dest-card">
+              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/tanzania.jpg') }}');"></div>
+              <div class="dest-info">
+                <h3>Tanzania</h3>
+                <p>Serengeti, Zanzibar, and Kilimanjaro.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </li>
+          <li class="dest-slide">
+            <div class="dest-card">
+              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/south-africa.jpg') }}');"></div>
+              <div class="dest-info">
+                <h3>South Africa</h3>
+                <p>Cape Town, Winelands &amp; Safari.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </li>
+          <li class="dest-slide">
+            <div class="dest-card">
+              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/maldives.jpg') }}');"></div>
+              <div class="dest-info">
+                <h3>Maldives</h3>
+                <p>Overwater villas &amp; turquoise lagoons.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </li>
+          <li class="dest-slide">
+            <div class="dest-card">
+              <div class="dest-image" style="background-image: url('{{ url_for('static', filename='images/bali.jpg') }}');"></div>
+              <div class="dest-info">
+                <h3>Bali</h3>
+                <p>Rice terraces, temples &amp; beaches.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TOP TOUR PACKAGES (Carousel - Database Driven) ===== -->
+  <section class="packages section" id="packages" aria-labelledby="packages-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="packages-title">Top Tour Packages</h2>
+        <p>Curated experiences for every taste</p>
+      </div>
+
+      <div class="packages-slider-wrapper">
+        <ul id="packages-slider" class="packages-slider list-unstyled">
+          {% for pkg in featured_packages %}
+          <li class="package-slide">
+            <div class="package-card" data-aos="zoom-in" data-aos-delay="{{ loop.index0 * 100 }}">
+              {% set pkg_image = pkg.image if pkg.image else 'placeholder-package.jpg' %}
+              <div class="package-image" style="background-image: url('{{ url_for('static', filename='images/' + pkg_image) }}');">
+                <span class="package-badge">{{ pkg.badge }}</span>
+              </div>
+              <div class="package-content">
+                <h3>{{ pkg.title }}</h3>
+                <div class="package-meta">
+                  <span>&#128205; {{ pkg.duration }}</span>
+                  <span>&#9202; {{ pkg.duration }}</span>
+                </div>
+                <p>{{ pkg.description|truncate(100) }}</p>
+                <div class="package-footer">
+                  <span class="package-price">${{ pkg.price }}</span>
+                  <a href="{{ url_for('single_package', package_id=pkg.id) }}" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          {% else %}
+          <!-- Fallback if no featured packages -->
+          <li class="package-slide">
+            <div class="package-card" data-aos="zoom-in">
+              <div class="package-image" style="background-image: url('{{ url_for('static', filename='images/safari-package.jpg') }}');">
+                <span class="package-badge">Luxury</span>
+              </div>
+              <div class="package-content">
+                <h3>African Safari Romance</h3>
+                <div class="package-meta">
+                  <span>&#128205; Kenya &amp; Tanzania</span>
+                  <span>&#9202; 10 Days</span>
+                </div>
+                <p>Private game drives, hot air balloons, and beachfront villas.</p>
+                <div class="package-footer">
+                  <span class="package-price">$6,499</span>
+                  <a href="#" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="package-slide">
+            <div class="package-card" data-aos="zoom-in" data-aos-delay="100">
+              <div class="package-image" style="background-image: url('{{ url_for('static', filename='images/beach-package.jpg') }}');">
+                <span class="package-badge">Beach</span>
+              </div>
+              <div class="package-content">
+                <h3>Indian Ocean Getaway</h3>
+                <div class="package-meta">
+                  <span>&#128205; Maldives</span>
+                  <span>&#9202; 7 Days</span>
+                </div>
+                <p>Crystal clear waters, overwater bungalows, and world-class diving.</p>
+                <div class="package-footer">
+                  <span class="package-price">$4,999</span>
+                  <a href="#" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="package-slide">
+            <div class="package-card" data-aos="zoom-in" data-aos-delay="200">
+              <div class="package-image" style="background-image: url('{{ url_for('static', filename='images/alps-package.jpg') }}');">
+                <span class="package-badge">Adventure</span>
+              </div>
+              <div class="package-content">
+                <h3>Swiss Alpine Escape</h3>
+                <div class="package-meta">
+                  <span>&#128205; Switzerland</span>
+                  <span>&#9202; 8 Days</span>
+                </div>
+                <p>Mountain hikes, glacier views, and luxury chalets.</p>
+                <div class="package-footer">
+                  <span class="package-price">$5,299</span>
+                  <a href="#" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="package-slide">
+            <div class="package-card" data-aos="zoom-in" data-aos-delay="300">
+              <div class="package-image" style="background-image: url('{{ url_for('static', filename='images/italy-package.jpg') }}');">
+                <span class="package-badge">Cultural</span>
+              </div>
+              <div class="package-content">
+                <h3>Italian Dolce Vita</h3>
+                <div class="package-meta">
+                  <span>&#128205; Italy</span>
+                  <span>&#9202; 12 Days</span>
+                </div>
+                <p>Rome, Florence, Venice &amp; Amalfi Coast.</p>
+                <div class="package-footer">
+                  <span class="package-price">$6,899</span>
+                  <a href="#" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHY CHOOSE US ===== -->
+  <section class="why-choose section" id="why-choose" aria-labelledby="why-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="why-title">Why Choose Elite Adventures</h2>
+        <p>We redefine travel with excellence</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-item" data-aos="fade-right">
+          <div class="why-icon" aria-hidden="true">&#9992;</div>
+          <h3>Expertly Curated</h3>
+          <p>Every itinerary is designed by local specialists.</p>
+        </div>
+        <div class="why-item" data-aos="fade-right" data-aos-delay="100">
+          <div class="why-icon" aria-hidden="true">&#128737;</div>
+          <h3>Safe &amp; Secure</h3>
+          <p>24/7 support and comprehensive travel insurance.</p>
+        </div>
+        <div class="why-item" data-aos="fade-right" data-aos-delay="200">
+          <div class="why-icon" aria-hidden="true">&#11088;</div>
+          <h3>Luxury Comfort</h3>
+          <p>Premium accommodation and private transport.</p>
+        </div>
+        <div class="why-item" data-aos="fade-right" data-aos-delay="300">
+          <div class="why-icon" aria-hidden="true">&#127757;</div>
+          <h3>Sustainable Travel</h3>
+          <p>Eco-friendly practices that protect nature.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CUSTOMER REVIEWS ===== -->
+  <section class="reviews section" id="reviews" aria-labelledby="reviews-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="reviews-title">What Our Guests Say</h2>
+        <p>Real stories from real travelers</p>
+      </div>
+      <div class="reviews-carousel">
+        <div class="review-slide active" role="tabpanel">
+          <div class="review-content">
+            <p>"Absolutely phenomenal! The safari was beyond our dreams. Every detail was perfect."</p>
+            <div class="review-author">
+              <span class="author-name">&mdash; Sarah &amp; James</span>
+              <span class="author-location">United Kingdom</span>
+            </div>
+          </div>
+        </div>
+        <div class="review-slide" role="tabpanel">
+          <div class="review-content">
+            <p>"Our honeymoon in Bali was magical. Elite Adventures made it unforgettable."</p>
+            <div class="review-author">
+              <span class="author-name">&mdash; Emily &amp; David</span>
+              <span class="author-location">Australia</span>
+            </div>
+          </div>
+        </div>
+        <div class="review-slide" role="tabpanel">
+          <div class="review-content">
+            <p>"Professional, attentive, and truly luxurious. We will book again next year."</p>
+            <div class="review-author">
+              <span class="author-name">&mdash; Michael Chen</span>
+              <span class="author-location">Canada</span>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-prev" aria-label="Previous review">&#8249;</button>
+          <span class="carousel-dots" role="tablist">
+            <span class="dot active" data-index="0" role="tab" aria-label="Review 1"></span>
+            <span class="dot" data-index="1" role="tab" aria-label="Review 2"></span>
+            <span class="dot" data-index="2" role="tab" aria-label="Review 3"></span>
+          </span>
+          <button class="carousel-next" aria-label="Next review">&#8250;</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== POPULAR COUNTRIES (Database Driven) ===== -->
+  <section class="countries section" id="countries" aria-labelledby="countries-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="countries-title">Popular Countries</h2>
+        <p>Explore our most loved destinations</p>
+      </div>
+      <div class="countries-grid">
+        {% for dest in popular_destinations %}
+        <a href="{{ url_for('single_destination', destination_id=dest.id) }}" class="country-flag" style="text-decoration: none; display: inline-block;">
+          {{ dest.country }}
+        </a>
+        {% else %}
+        <!-- Fallback countries -->
+        <div class="country-flag">&#127465;&#127470; Kenya</div>
+        <div class="country-flag">&#127465;&#127471; Tanzania</div>
+        <div class="country-flag">&#127468;&#127467; Uganda</div>
+        <div class="country-flag">&#127479;&#127468; Rwanda</div>
+        <div class="country-flag">&#127465;&#127466; South Africa</div>
+        <div class="country-flag">&#127466;&#127466; Dubai</div>
+        <div class="country-flag">&#127474;&#127473; Maldives</div>
+        <div class="country-flag">&#127470;&#127465; Bali</div>
+        <div class="country-flag">&#127465;&#127469; Thailand</div>
+        <div class="country-flag">&#127464;&#127469; Switzerland</div>
+        <div class="country-flag">&#127470;&#127481; Italy</div>
+        <div class="country-flag">&#127467;&#127479; France</div>
+        <div class="country-flag">&#127471;&#127477; Japan</div>
+        <div class="country-flag">&#127464;&#127462; Canada</div>
+        <div class="country-flag">&#127482;&#127480; USA</div>
+        <div class="country-flag">&#127462;&#127482; Australia</div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CALL TO ACTION ===== -->
+  <section class="cta section" id="cta" aria-labelledby="cta-title">
+    <div class="container">
+      <h2 id="cta-title">Ready for Your Dream Vacation?</h2>
+      <p>Let our experts craft the perfect itinerary for you.</p>
+      <a href="/book-now" class="btn btn-primary btn-lg">Plan Your Trip</a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  {% include 'footer.html' %}
+
+</body>
+</html>

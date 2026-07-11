@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if package %}{{ package.title }}{% else %}Package{% endif %} - Shidow TOURS</title>
+  <meta name="description" content="{% if package %}{{ package.title }} - {{ package.description|truncate(150) }}{% else %}Explore luxury travel packages with Shidow TOURS{% endif %}" />
+  <meta property="og:title" content="{% if package %}{{ package.title }}{% else %}Package{% endif %} - Shidow TOURS" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{% if package %}{{ url_for('single_package', package_id=package.id, _external=True) }}{% else %}{{ url_for('index', _external=True) }}{% endif %}" />
+  <meta property="og:image" content="{% if package and package.image %}{{ url_for('static', filename='images/' + package.image, _external=True) }}{% else %}{{ url_for('static', filename='images/og-image.jpg', _external=True) }}{% endif %}" />
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/lightslider.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/style.css') }}" />
+
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" />
+
+  <!-- Scripts (deferred for performance) -->
+  <script src="{{ url_for('static', filename='files/js/jquery.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/lightslider.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/bootstrap.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/script.js') }}" defer></script>
+
+  <style>
+    /* ===== Luxury Gold Heading ===== */
+    .luxury-heading.gold {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: linear-gradient(270deg, #b8860b, #d4af37, #f5e6b0, #d4af37, #b8860b, #8b6b0a, #b8860b);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: goldShimmer 6s ease infinite;
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+      display: inline-block;
+      padding: 0 var(--spacing-md, 16px);
+    }
+
+    @keyframes goldShimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .gold-link {
+      -webkit-text-fill-color: transparent;
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      transition: filter 0.4s ease;
+    }
+    .gold-link:hover {
+      filter: brightness(1.2);
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== Hero Background ===== */
+    .hero-video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10, 10, 10, 0.7), rgba(0, 0, 0, 0.5));
+      z-index: 0;
+    }
+
+    /* ===== Package Detail Styles ===== */
+    .package-detail-hero {
+      position: relative;
+      min-height: 60vh;
+      display: flex;
+      align-items: flex-end;
+      padding: 60px 0 40px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .package-detail-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+      z-index: 1;
+    }
+
+    .package-detail-hero .hero-content {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+    }
+
+    .package-detail-hero .hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .package-detail-hero .hero-content .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .package-detail-hero .hero-content .subtitle .badge-tag {
+      background: rgba(212, 175, 55, 0.8);
+      padding: 4px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .package-detail-hero .hero-content .subtitle .price-tag {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 16px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* ===== Itinerary Timeline ===== */
+    .itinerary-timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+
+    .itinerary-timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #d4af37, #b8962e);
+    }
+
+    .itinerary-item {
+      position: relative;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #d4af37;
+      transition: all 0.3s ease;
+    }
+
+    body.dark-mode .itinerary-item {
+      background: #1e1e1e;
+    }
+
+    .itinerary-item:hover {
+      transform: translateX(6px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .itinerary-item .day-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #d4af37, #b8962e);
+      color: #ffffff;
+      padding: 2px 14px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .itinerary-item h5 {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .itinerary-item p {
+      margin: 0;
+      color: #6a6a6a;
+      font-size: 0.9rem;
+    }
+
+    body.dark-mode .itinerary-item p {
+      color: #b0b0b0;
+    }
+
+    /* ===== Booking Card (Package) ===== */
+    .booking-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 100px;
+    }
+
+    body.dark-mode .booking-card {
+      background: #1e1e1e;
+    }
+
+    .booking-card .price-display {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #d4af37;
+    }
+
+    .booking-card .price-display span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #6a6a6a;
+    }
+
+    .booking-card .form-control {
+      border-radius: 8px;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+    }
+
+    body.dark-mode .booking-card .form-control {
+      background: #2a2a2a;
+      border-color: #3a3a3a;
+      color: #f0f0f0;
+    }
+
+    .booking-card .form-control:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .package-detail-hero {
+        min-height: 40vh;
+      }
+      .package-detail-hero .hero-content h1 {
+        font-size: 2rem;
+      }
+      .booking-card {
+        position: relative;
+        top: 0;
+        margin-top: 20px;
+      }
+      .itinerary-timeline {
+        padding-left: 20px;
+      }
+      .itinerary-timeline::before {
+        left: 4px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .package-detail-hero .hero-content h1 {
+        font-size: 1.6rem;
+      }
+      .itinerary-item {
+        padding: 12px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== COOKIE CONSENT POPUP ===== -->
+  <div id="cookie-popup" class="cookie-popup" role="alert" aria-label="Cookie consent">
+    <p>We use cookies to enhance your experience. By continuing, you agree to our <a href="/privacy-policy">Privacy Policy</a>.</p>
+    <button id="accept-cookies" class="btn btn-primary" aria-label="Accept cookies">Accept</button>
+  </div>
+
+  <!-- ===== TOP BRAND HEADING ===== -->
+  <div class="container text-center py-3">
+    <h1 class="luxury-heading gold" aria-label="Shidow Tours">
+      <a href="/" class="gold-link">SHIDOW TOURS</a>
+    </h1>
+  </div>
+
+  <!-- ===== NAVBAR ===== -->
+  {% include 'navbar.html' %}
+
+  <!-- ===== PACKAGE DETAIL HERO ===== -->
+  {% if package %}
+  <section class="package-detail-hero" style="background-image: url('{{ url_for('static', filename='images/' + (package.image if package.image else 'placeholder-package.jpg')) }}');">
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <div class="row">
+        <div class="col-lg-8">
+          <h1>{{ package.title }}</h1>
+          <div class="subtitle">
+            <span class="badge-tag">{{ package.badge }}</span>
+            <span class="price-tag">${{ package.price }}</span>
+            <span class="price-tag">{{ package.duration }}</span>
+          </div>
+       

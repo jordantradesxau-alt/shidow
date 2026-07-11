@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin Panel{% endblock %} - Shidow TOURS</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin/admin.css') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+  <!-- ===== ADMIN NAVBAR ===== -->
+  <nav class="admin-navbar" id="admin-navbar">
+    <div class="admin-navbar-container">
+      <a href="{{ url_for('admin_dashboard') }}" class="admin-logo">
+        <span class="gold">✦</span> Shidow TOURS
+        <span class="admin-badge">Admin</span>
+      </a>
+      <div class="admin-nav-links" id="admin-nav-links">
+        <a href="{{ url_for('admin_dashboard') }}" class="{% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+          <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('admin_destinations') }}" class="{% if request.endpoint == 'admin_destinations' or request.endpoint == 'admin_destination_create' or request.endpoint == 'admin_destination_edit' %}active{% endif %}">
+          <i class="fas fa-map-marker-alt"></i> <span>Destinations</span>
+        </a>
+        <a href="{{ url_for('admin_packages') }}" class="{% if request.endpoint == 'admin_packages' or request.endpoint == 'admin_package_create' or request.endpoint == 'admin_package_edit' or request.endpoint == 'admin_package_itinerary' %}active{% endif %}">
+          <i class="fas fa-box"></i> <span>Packages</span>
+        </a>
+        <a href="#" class="">
+          <i class="fas fa-calendar-check"></i> <span>Bookings</span>
+        </a>
+        <a href="#" class="">
+          <i class="fas fa-users"></i> <span>Users</span>
+        </a>
+        <a href="#" class="">
+          <i class="fas fa-cog"></i> <span>Settings</span>
+        </a>
+        <a href="{{ url_for('admin_logout') }}" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+        </a>
+      </div>
+      <button class="admin-hamburger" id="admin-hamburger" aria-label="Toggle admin menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== ADMIN CONTENT ===== -->
+  <div class="admin-content">
+    <div class="container-fluid">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="{{ url_for('static', filename='files/js/jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='files/js/bootstrap.min.js') }}"></script>
+  <script>
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      var hamburger = document.getElementById('admin-hamburger');
+      var navLinks = document.getElementById('admin-nav-links');
+
+      if (hamburger && navLinks) {
+        hamburger.addEventListener('click', function() {
+          navLinks.classList.toggle('open');
+        });
+      }
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,397 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Package Itinerary - {{ package.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .itinerary-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #d4af37;
+    transition: all 0.3s ease;
+  }
+  .itinerary-item:hover {
+    background: #f0f1f3;
+  }
+  .itinerary-item .day-number {
+    font-weight: 700;
+    color: #d4af37;
+    min-width: 40px;
+  }
+  .itinerary-item .dest-name {
+    flex: 1;
+    font-weight: 500;
+  }
+  .itinerary-item .dest-location {
+    color: #6a6a6a;
+    font-size: 0.85rem;
+  }
+  .itinerary-item .remove-btn {
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  .itinerary-item .remove-btn:hover {
+    background: #fee2e2;
+  }
+  .sortable-placeholder {
+    background: #fef3c7;
+    border: 2px dashed #d4af37;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #92400e;
+  }
+  .available-dest-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .available-dest-item:hover {
+    background: rgba(212, 175, 55, 0.1);
+  }
+  .available-dest-item .add-btn {
+    margin-left: auto;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+  }
+  .available-dest-item .add-btn:hover {
+    background: #059669;
+  }
+  .empty-itinerary {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+  }
+  .empty-itinerary i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-route" style="color: #d4af37;"></i> Itinerary: {{ package.title }}</h1>
+    <p class="text-muted">Manage the day-by-day itinerary for this package.</p>
+  </div>
+  <div>
+    <a href="{{ url_for('admin_packages') }}" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Packages
+    </a>
+  </div>
+</div>
+
+<!-- Itinerary Summary -->
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-3">
+        <strong>Package:</strong> {{ package.title }}
+      </div>
+      <div class="col-md-3">
+        <strong>Badge:</strong> <span class="badge badge-badge">{{ package.badge }}</span>
+      </div>
+      <div class="col-md-3">
+        <strong>Duration:</strong> {{ package.duration }}
+      </div>
+      <div class="col-md-3">
+        <strong>Price:</strong> <span class="price-text">${{ package.price }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Itinerary List -->
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">
+        <h4><i class="fas fa-list"></i> Day-by-Day Itinerary</h4>
+        <span class="badge badge-category">{{ itinerary|length }} destinations</span>
+      </div>
+      <div class="card-body">
+        {% if itinerary %}
+        <div id="itinerary-list">
+          {% for item in itinerary %}
+          <div class="itinerary-item" data-id="{{ item.id }}" data-dest-id="{{ item.destination_id }}">
+            <span class="day-number">Day {{ item.day_order }}</span>
+            <span class="dest-name">{{ item.country }}, {{ item.location }}</span>
+            <span class="dest-location">{{ item.category }}</span>
+            <button class="remove-btn" onclick="removeFromItinerary('{{ item.destination_id }}', '{{ item.location }}')" title="Remove from itinerary">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-itinerary">
+          <i class="fas fa-route"></i>
+          <p>No destinations added to this itinerary yet.</p>
+          <p class="small text-muted">Add destinations from the list on the right.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Available Destinations -->
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">
+        <h4><i class="fas fa-map-marker-alt"></i> Available Destinations</h4>
+        <span class="badge badge-category">{{ available_destinations|length }} total</span>
+      </div>
+      <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+        {% if available_destinations %}
+          {% for dest in available_destinations %}
+          <div class="available-dest-item" data-id="{{ dest.id }}">
+            <i class="fas fa-map-pin" style="color: #d4af37;"></i>
+            <div>
+              <strong>{{ dest.location }}</strong>
+              <span class="text-muted small"> ({{ dest.country }})</span>
+              <br />
+              <span class="text-muted small">{{ dest.category }}</span>
+            </div>
+            <button class="add-btn" onclick="addToItinerary('{{ dest.id }}', '{{ dest.location }}')">
+              Add
+            </button>
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-check-circle" style="font-size: 2rem; color: #10b981;"></i>
+          <p class="mt-2">All destinations have been added to the itinerary!</p>
+          <p class="text-muted small">Create more destinations in the <a href="{{ url_for('admin_destinations') }}">Destinations</a> section.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Save Itinerary Form -->
+<div class="card mt-4">
+  <div class="card-body">
+    <form id="itinerary-form" method="POST">
+      <div id="itinerary-inputs">
+        <!-- Hidden inputs will be populated by JavaScript -->
+      </div>
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Save Itinerary
+        </button>
+        <button type="button" class="btn btn-outline-secondary" onclick="resetItinerary()">
+          <i class="fas fa-undo"></i> Reset Changes
+        </button>
+        <span id="status-message" class="text-muted small align-self-center"></span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Store current itinerary state
+var currentItinerary = [];
+
+// Initialize from existing itinerary
+document.addEventListener('DOMContentLoaded', function() {
+  var items = document.querySelectorAll('.itinerary-item');
+  items.forEach(function(item) {
+    var destId = parseInt(item.dataset.destId);
+    var dayOrder = parseInt(item.querySelector('.day-number').textContent.replace('Day ', ''));
+    currentItinerary.push({ destination_id: destId, day_order: dayOrder });
+  });
+  updateHiddenInputs();
+});
+
+// Add destination to itinerary
+function addToItinerary(destId, destName) {
+  // Check if already in itinerary
+  var exists = false;
+  for (var i = 0; i < currentItinerary.length; i++) {
+    if (currentItinerary[i].destination_id === parseInt(destId)) {
+      exists = true;
+      break;
+    }
+  }
+  if (exists) {
+    showStatus('Destination already in itinerary.', 'warning');
+    return;
+  }
+
+  // Get next day order
+  var nextDay = currentItinerary.length + 1;
+  
+  // Add to currentItinerary array
+  currentItinerary.push({ destination_id: parseInt(destId), day_order: nextDay });
+  
+  // Update UI - add to itinerary list
+  var list = document.getElementById('itinerary-list');
+  var emptyMsg = list.querySelector('.empty-itinerary');
+  if (emptyMsg) {
+    emptyMsg.remove();
+  }
+  
+  // Find destination details from available list
+  var destItem = document.querySelector('.available-dest-item[data-id="' + destId + '"]');
+  if (destItem) {
+    var location = destItem.querySelector('strong').textContent.trim();
+    var categoryEl = destItem.querySelectorAll('.text-muted.small');
+    var categoryText = categoryEl.length > 1 ? categoryEl[1].textContent.trim() : '';
+    
+    var newItem = document.createElement('div');
+    newItem.className = 'itinerary-item';
+    newItem.dataset.id = 'new-' + Date.now();
+    newItem.dataset.destId = destId;
+    newItem.innerHTML = `
+      <span class="day-number">Day ${nextDay}</span>
+      <span class="dest-name">${location}</span>
+      <span class="dest-location">${categoryText}</span>
+      <button class="remove-btn" onclick="removeFromItinerary('${destId}', '${location}')" title="Remove from itinerary">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    list.appendChild(newItem);
+    
+    // Remove from available list
+    destItem.remove();
+  }
+  
+  updateHiddenInputs();
+  showStatus('Added ' + destName + ' to itinerary.', 'success');
+}
+
+// Remove from itinerary
+function removeFromItinerary(destId, destName) {
+  if (!confirm('Remove ' + destName + ' from the itinerary?')) {
+    return;
+  }
+  
+  var destIdInt = parseInt(destId);
+  
+  // Remove from currentItinerary array
+  var newItinerary = [];
+  for (var i = 0; i < currentItinerary.length; i++) {
+    if (currentItinerary[i].destination_id !== destIdInt) {
+      newItinerary.push(currentItinerary[i]);
+    }
+  }
+  currentItinerary = newItinerary;
+  
+  // Reorder days
+  for (var j = 0; j < currentItinerary.length; j++) {
+    currentItinerary[j].day_order = j + 1;
+  }
+  
+  // Update UI - remove from itinerary list
+  var items = document.querySelectorAll('.itinerary-item');
+  for (var k = 0; k < items.length; k++) {
+    if (parseInt(items[k].dataset.destId) === destIdInt) {
+      items[k].remove();
+    }
+  }
+  
+  // Update day numbers
+  updateDayNumbers();
+  
+  // If no items left, show empty message
+  if (currentItinerary.length === 0) {
+    var list = document.getElementById('itinerary-list');
+    list.innerHTML = `
+      <div class="empty-itinerary">
+        <i class="fas fa-route"></i>
+        <p>No destinations added to this itinerary yet.</p>
+        <p class="small text-muted">Add destinations from the list on the right.</p>
+      </div>
+    `;
+  }
+  
+  updateHiddenInputs();
+  showStatus('Removed ' + destName + ' from itinerary.', 'info');
+}
+
+// Update day numbers in UI
+function updateDayNumbers() {
+  var items = document.querySelectorAll('.itinerary-item');
+  for (var i = 0; i < items.length; i++) {
+    var dayNum = items[i].querySelector('.day-number');
+    if (dayNum) {
+      dayNum.textContent = 'Day ' + (i + 1);
+    }
+  }
+}
+
+// Update hidden inputs for form submission
+function updateHiddenInputs() {
+  var container = document.getElementById('itinerary-inputs');
+  container.innerHTML = '';
+  
+  for (var i = 0; i < currentItinerary.length; i++) {
+    var destInput = document.createElement('input');
+    destInput.type = 'hidden';
+    destInput.name = 'destinations[]';
+    destInput.value = currentItinerary[i].destination_id;
+    container.appendChild(destInput);
+    
+    var dayInput = document.createElement('input');
+    dayInput.type = 'hidden';
+    dayInput.name = 'day_orders[]';
+    dayInput.value = currentItinerary[i].day_order;
+    container.appendChild(dayInput);
+  }
+}
+
+// Reset itinerary to original state
+function resetItinerary() {
+  if (!confirm('Reset to the last saved itinerary? Any unsaved changes will be lost.')) {
+    return;
+  }
+  location.reload();
+}
+
+// Show status message
+function showStatus(message, type) {
+  var status = document.getElementById('status-message');
+  status.textContent = message;
+  if (type === 'success') {
+    status.style.color = '#10b981';
+  } else if (type === 'warning') {
+    status.style.color = '#f59e0b';
+  } else if (type === 'info') {
+    status.style.color = '#3b82f6';
+  } else {
+    status.style.color = '#6b7280';
+  }
+  
+  // Auto-clear after 3 seconds
+  if (type !== 'info') {
+    setTimeout(function() {
+      status.textContent = '';
+    }, 3000);
+  }
+}
+</script>
+{% endblock %}

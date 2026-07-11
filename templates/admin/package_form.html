@@ -1,0 +1,146 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}{{ 'Edit' if package else 'Add' }} Package{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-box" style="color: #d4af37;"></i> {{ 'Edit' if package else 'Add' }} Package</h1>
+    <p class="text-muted">{{ 'Update' if package else 'Create' }} a new tour package.</p>
+  </div>
+  <a href="{{ url_for('admin_packages') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to List
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" class="needs-validation" novalidate>
+      <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+          <div class="form-group">
+            <label for="title">Package Title <span class="text-danger">*</span></label>
+            <input type="text" id="title" name="title" class="form-control" 
+                   value="{{ package.title if package else '' }}" 
+                   placeholder="e.g., African Safari Romance" required />
+          </div>
+
+          <div class="form-group">
+            <label for="badge">Badge / Tag</label>
+            <select id="badge" name="badge" class="form-control">
+              <option value="Luxury" {% if package and package.badge == 'Luxury' %}selected{% endif %}>Luxury</option>
+              <option value="Beach" {% if package and package.badge == 'Beach' %}selected{% endif %}>Beach</option>
+              <option value="Adventure" {% if package and package.badge == 'Adventure' %}selected{% endif %}>Adventure</option>
+              <option value="Cultural" {% if package and package.badge == 'Cultural' %}selected{% endif %}>Cultural</option>
+              <option value="Wildlife" {% if package and package.badge == 'Wildlife' %}selected{% endif %}>Wildlife</option>
+              <option value="Romantic" {% if package and package.badge == 'Romantic' %}selected{% endif %}>Romantic</option>
+              <option value="Family" {% if package and package.badge == 'Family' %}selected{% endif %}>Family</option>
+              <option value="Honeymoon" {% if package and package.badge == 'Honeymoon' %}selected{% endif %}>Honeymoon</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="5" 
+                      placeholder="Detailed description of the package...">{{ package.description if package else '' }}</textarea>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+          <div class="card bg-light">
+            <div class="card-body">
+              <h5 class="card-title">Pricing & Settings</h5>
+
+              <div class="form-group">
+                <label for="duration">Duration <span class="text-danger">*</span></label>
+                <input type="text" id="duration" name="duration" class="form-control" 
+                       value="{{ package.duration if package else '' }}" 
+                       placeholder="e.g., 10 Days" required />
+              </div>
+
+              <div class="form-group">
+                <label for="price">Price ($) <span class="text-danger">*</span></label>
+                <input type="number" id="price" name="price" class="form-control" 
+                       value="{{ package.price if package else '' }}" 
+                       step="0.01" min="0" required />
+              </div>
+
+              <div class="form-group">
+                <label for="image">Image Filename</label>
+                <input type="text" id="image" name="image" class="form-control" 
+                       value="{{ package.image if package else '' }}" 
+                       placeholder="e.g., safari-package.jpg" />
+                <small class="text-muted">Place image in static/images/ folder</small>
+                {% if package and package.image %}
+                <div class="mt-2">
+                  <img src="{{ url_for('static', filename='images/' + package.image) }}" 
+                       alt="Current image" style="max-width: 100%; max-height: 100px; border-radius: 8px; object-fit: cover;" />
+                </div>
+                {% endif %}
+              </div>
+
+              <hr />
+
+              <div class="form-group">
+                <div class="form-check">
+                  <input type="checkbox" id="featured" name="featured" class="form-check-input" 
+                         {% if package and package.featured %}checked{% endif %} />
+                  <label for="featured" class="form-check-label">Feature this package</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" class="form-control">
+                  <option value="active" {% if not package or package.status == 'active' %}selected{% endif %}>Active</option>
+                  <option value="inactive" {% if package and package.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {% if package %}
+          <div class="card mt-3">
+            <div class="card-body">
+              <h5 class="card-title"><i class="fas fa-route" style="color: #d4af37;"></i> Itinerary</h5>
+              <p class="text-muted small">Manage the destinations for this package.</p>
+              <a href="{{ url_for('admin_package_itinerary', package_id=package.id) }}" class="btn btn-outline-primary btn-block">
+                <i class="fas fa-edit"></i> Manage Itinerary
+              </a>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> {{ 'Update' if package else 'Create' }} Package
+        </button>
+        <a href="{{ url_for('admin_packages') }}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Form validation
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>
+{% endblock %}

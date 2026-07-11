@@ -1,0 +1,141 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}{{ 'Edit' if destination else 'Add' }} Destination{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-map-marker-alt" style="color: #d4af37;"></i> {{ 'Edit' if destination else 'Add' }} Destination</h1>
+    <p class="text-muted">{{ 'Update' if destination else 'Create' }} a new destination listing.</p>
+  </div>
+  <a href="{{ url_for('admin_destinations') }}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left"></i> Back to List
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form method="POST" class="needs-validation" novalidate>
+      <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-8">
+          <div class="form-group">
+            <label for="country">Country <span class="text-danger">*</span></label>
+            <input type="text" id="country" name="country" class="form-control" 
+                   value="{{ destination.country if destination else '' }}" 
+                   placeholder="e.g., Kenya" required />
+          </div>
+
+          <div class="form-group">
+            <label for="location">Location / City <span class="text-danger">*</span></label>
+            <input type="text" id="location" name="location" class="form-control" 
+                   value="{{ destination.location if destination else '' }}" 
+                   placeholder="e.g., Maasai Mara" required />
+          </div>
+
+          <div class="form-group">
+            <label for="category">Category <span class="text-danger">*</span></label>
+            <select id="category" name="category" class="form-control" required>
+              <option value="">Select Category</option>
+              <option value="Beach Escapes" {% if destination and destination.category == 'Beach Escapes' %}selected{% endif %}>Beach Escapes</option>
+              <option value="Mountain Adventures" {% if destination and destination.category == 'Mountain Adventures' %}selected{% endif %}>Mountain Adventures</option>
+              <option value="Wildlife Safaris" {% if destination and destination.category == 'Wildlife Safaris' %}selected{% endif %}>Wildlife Safaris</option>
+              <option value="Luxury Retreats" {% if destination and destination.category == 'Luxury Retreats' %}selected{% endif %}>Luxury Retreats</option>
+              <option value="Cultural Tours" {% if destination and destination.category == 'Cultural Tours' %}selected{% endif %}>Cultural Tours</option>
+              <option value="City Breaks" {% if destination and destination.category == 'City Breaks' %}selected{% endif %}>City Breaks</option>
+              <option value="Adventure Sports" {% if destination and destination.category == 'Adventure Sports' %}selected{% endif %}>Adventure Sports</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="5" 
+                      placeholder="Detailed description of the destination...">{{ destination.description if destination else '' }}</textarea>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-md-4">
+          <div class="card bg-light">
+            <div class="card-body">
+              <h5 class="card-title">Pricing & Settings</h5>
+
+              <div class="form-group">
+                <label for="price_per_day">Price per Day ($) <span class="text-danger">*</span></label>
+                <input type="number" id="price_per_day" name="price_per_day" class="form-control" 
+                       value="{{ destination.price_per_day if destination else '' }}" 
+                       step="0.01" min="0" required />
+              </div>
+
+              <div class="form-group">
+                <label for="minimum_days">Minimum Days</label>
+                <input type="number" id="minimum_days" name="minimum_days" class="form-control" 
+                       value="{{ destination.minimum_days if destination else '1' }}" 
+                       min="1" />
+              </div>
+
+              <div class="form-group">
+                <label for="cover_image">Cover Image Filename</label>
+                <input type="text" id="cover_image" name="cover_image" class="form-control" 
+                       value="{{ destination.cover_image if destination else '' }}" 
+                       placeholder="e.g., kenya.jpg" />
+                <small class="text-muted">Place image in static/images/ folder</small>
+                {% if destination and destination.cover_image %}
+                <div class="mt-2">
+                  <img src="{{ url_for('static', filename='images/' + destination.cover_image) }}" 
+                       alt="Current image" style="max-width: 100%; max-height: 100px; border-radius: 8px; object-fit: cover;" />
+                </div>
+                {% endif %}
+              </div>
+
+              <hr />
+
+              <div class="form-group">
+                <div class="form-check">
+                  <input type="checkbox" id="featured" name="featured" class="form-check-input" 
+                         {% if destination and destination.featured %}checked{% endif %} />
+                  <label for="featured" class="form-check-label">Feature this destination</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status" class="form-control">
+                  <option value="active" {% if not destination or destination.status == 'active' %}selected{% endif %}>Active</option>
+                  <option value="inactive" {% if destination and destination.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> {{ 'Update' if destination else 'Create' }} Destination
+        </button>
+        <a href="{{ url_for('admin_destinations') }}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Form validation
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>
+{% endblock %}

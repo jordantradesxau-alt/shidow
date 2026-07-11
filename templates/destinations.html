@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Destinations - Shidow TOURS</title>
+  <meta name="description" content="Explore our curated luxury destinations - Beach Escapes, Mountain Adventures, Wildlife Safaris, and Luxury Retreats." />
+  <meta property="og:title" content="Destinations - Shidow TOURS" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.shidowtours.com/destinations" />
+  <meta property="og:image" content="{{ url_for('static', filename='images/og-image.jpg') }}" />
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/lightslider.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='files/css/style.css') }}" />
+
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" />
+
+  <!-- Scripts (deferred for performance) -->
+  <script src="{{ url_for('static', filename='files/js/jquery.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/lightslider.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/bootstrap.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='files/js/script.js') }}" defer></script>
+
+  <style>
+    /* ===== Luxury Gold Heading ===== */
+    .luxury-heading.gold {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: linear-gradient(270deg, #b8860b, #d4af37, #f5e6b0, #d4af37, #b8860b, #8b6b0a, #b8860b);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: goldShimmer 6s ease infinite;
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+      display: inline-block;
+      padding: 0 var(--spacing-md, 16px);
+    }
+
+    @keyframes goldShimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .gold-link {
+      -webkit-text-fill-color: transparent;
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      transition: filter 0.4s ease;
+    }
+    .gold-link:hover {
+      filter: brightness(1.2);
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ===== Hero Background ===== */
+    .hero-video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(10, 10, 10, 0.7), rgba(0, 0, 0, 0.5));
+      z-index: 0;
+    }
+
+    /* ===== Destinations Grid ===== */
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .destination-card {
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .destination-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .destination-image {
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.4s ease;
+      position: relative;
+    }
+
+    .destination-card:hover .destination-image {
+      transform: scale(1.03);
+    }
+
+    .destination-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(212, 175, 55, 0.9);
+      color: #ffffff;
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .destination-info {
+      padding: 20px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .destination-info h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #1e1e1e;
+    }
+
+    .destination-info .location {
+      font-size: 0.95rem;
+      color: #4a4a4a;
+      margin-bottom: 8px;
+    }
+
+    .destination-info .price {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #b8962e;
+      margin-bottom: 8px;
+    }
+
+    .destination-info .description {
+      font-size: 0.9rem;
+      color: #4a4a4a;
+      flex: 1;
+      margin-bottom: 16px;
+    }
+
+    .destination-info .btn {
+      align-self: flex-start;
+    }
+
+    /* ===== Category Section ===== */
+    .category-section {
+      margin-bottom: 60px;
+    }
+
+    .category-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1e1e1e;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .category-title .category-icon {
+      font-size: 1.8rem;
+    }
+
+    .category-divider {
+      height: 3px;
+      width: 60px;
+      background: linear-gradient(90deg, #d4af37, #b8962e);
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+
+    .category-description {
+      color: #6a6a6a;
+      margin-bottom: 20px;
+    }
+
+    /* ===== Dark Mode Overrides ===== */
+    body.dark-mode .destination-card {
+      background: #1e1e1e;
+    }
+
+    body.dark-mode .destination-info h3 {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .destination-info .location {
+      color: #b0b0b0;
+    }
+
+    body.dark-mode .destination-info .description {
+      color: #b0b0b0;
+    }
+
+    body.dark-mode .category-title {
+      color: #f0f0f0;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .destinations-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      .category-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .destinations-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .destination-image {
+        height: 150px;
+      }
+      .destination-info {
+        padding: 14px 16px;
+      }
+      .destination-info h3 {
+        font-size: 1rem;
+      }
+      .category-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== COOKIE CONSENT POPUP ===== -->
+  <div id="cookie-popup" class="cookie-popup" role="alert" aria-label="Cookie consent">
+    <p>We use cookies to enhance your experience. By continuing, you agree to our <a href="/privacy-policy">Privacy Policy</a>.</p>
+    <button id="accept-cookies" class="btn btn-primary" aria-label="Accept cookies">Accept</button>
+  </div>
+
+  <!-- ===== TOP BRAND HEADING ===== -->
+  <div class="container text-center py-3">
+    <h1 class="luxury-heading gold" aria-label="Shidow Tours">
+      <a href="/" class="gold-link">SHIDOW TOURS</a>
+    </h1>
+  </div>
+
+  <!-- ===== NAVBAR ===== -->
+  {% include 'navbar.html' %}
+
+  <!-- ===== HERO SECTION (Mini) ===== -->
+  <section class="hero" id="hero" aria-label="Destinations hero banner" style="min-height: 40vh;">
+    <div class="hero-video-placeholder"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content container">
+      <h1 class="hero-title" style="font-size: 2.8rem;">Our Destinations</h1>
+      <p class="hero-subtitle">Explore handpicked destinations across the globe, curated for the discerning traveler.</p>
+    </div>
+  </section>
+
+  <!-- ===== DESTINATIONS BY CATEGORY ===== -->
+  <section class="destinations-page section" id="destinations-page">
+    <div class="container">
+
+      {% if categories %}
+        {% for category_name, destinations in categories.items() %}
+        <div class="category-section">
+          <div class="category-title">
+            <span class="category-icon">
+              {% if 'Beach' in category_name or 'beach' in category_name %}
+                &#127958;
+              {% elif 'Mountain' in category_name or 'mountain' in category_name %}
+                &#9968;
+              {% elif 'Safari' in category_name or 'safari' in category_name or 'Wildlife' in category_name %}
+                &#128040;
+              {% elif 'Luxury' in category_name or 'Retreat' in category_name %}
+                &#127881;
+              {% elif 'Cultural' in category_name %}
+                &#127912;
+              {% elif 'City' in category_name or 'Breaks' in category_name %}
+                &#127961;
+              {% elif 'Adventure' in category_name or 'Sports' in category_name %}
+                &#127947;
+              {% else %}
+                &#127758;
+              {% endif %}
+            </span>
+            {{ category_name }}
+          </div>
+          <div class="category-divider"></div>
+          <p class="category-description">
+            {% if 'Beach' in category_name or 'beach' in category_name %}
+              Pristine shores, crystal waters, and endless relaxation.
+            {% elif 'Mountain' in category_name or 'mountain' in category_name %}
+              Majestic peaks, fresh alpine air, and breathtaking views.
+            {% elif 'Safari' in category_name or 'safari' in category_name or 'Wildlife' in category_name %}
+              Witness the wild in its natural habitat, up close and personal.
+            {% elif 'Luxury' in category_name or 'Retreat' in category_name %}
+              Indulge in the finest accommodations and unparalleled service.
+            {% elif 'Cultural' in category_name %}
+              Immerse yourself in rich history, art, and local traditions.
+            {% elif 'City' in category_name or 'Breaks' in category_name %}
+              Vibrant city life, world-class dining, and endless entertainment.
+            {% elif 'Adventure' in category_name or 'Sports' in category_name %}
+              Adrenaline-pumping activities for the thrill-seeker.
+            {% else %}
+              Discover the beauty and wonder of these handpicked destinations.
+            {% endif %}
+          </p>
+
+          <div class="destinations-grid">
+            {% for dest in destinations %}
+            <div class="destination-card" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+              {% set image_path = dest.cover_image if dest.cover_image else 'placeholder.jpg' %}
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/' + image_path) }}');">
+                {% if dest.featured %}
+                <span class="destination-badge">Featured</span>
+                {% endif %}
+              </div>
+              <div class="destination-info">
+                <h3>{{ dest.country }}</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> {{ dest.location }}</p>
+                {% if dest.price_per_day %}
+                <p class="price">${{ dest.price_per_day }} <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                {% endif %}
+                <p class="description">{{ dest.description|truncate(80) if dest.description else 'Experience the beauty and culture of this incredible destination.' }}</p>
+                <a href="{{ url_for('single_destination', destination_id=dest.id) }}" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <!-- Fallback - Hardcoded Categories -->
+        <div class="category-section">
+          <div class="category-title">
+            <span class="category-icon">&#127958;</span>
+            Beach Escapes
+          </div>
+          <div class="category-divider"></div>
+          <p class="category-description">Pristine shores, crystal waters, and endless relaxation.</p>
+          <div class="destinations-grid">
+            <div class="destination-card" data-aos="fade-up">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/maldives.jpg') }}');">
+                <span class="destination-badge">Featured</span>
+              </div>
+              <div class="destination-info">
+                <h3>Maldives</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Malé</p>
+                <p class="price">$499 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">Overwater villas &amp; turquoise lagoons. The ultimate beach paradise.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+            <div class="destination-card" data-aos="fade-up" data-aos-delay="50">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/bali.jpg') }}');"></div>
+              <div class="destination-info">
+                <h3>Bali</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Denpasar</p>
+                <p class="price">$299 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">Rice terraces, temples &amp; beaches. A cultural and beach haven.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+            <div class="destination-card" data-aos="fade-up" data-aos-delay="100">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/seychelles.jpg') }}');"></div>
+              <div class="destination-info">
+                <h3>Seychelles</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Victoria</p>
+                <p class="price">$599 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">Granite boulders, turquoise waters, and untouched beauty.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-section">
+          <div class="category-title">
+            <span class="category-icon">&#9968;</span>
+            Mountain Adventures
+          </div>
+          <div class="category-divider"></div>
+          <p class="category-description">Majestic peaks, fresh alpine air, and breathtaking views.</p>
+          <div class="destinations-grid">
+            <div class="destination-card" data-aos="fade-up">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/switzerland.jpg') }}');">
+                <span class="destination-badge">Featured</span>
+              </div>
+              <div class="destination-info">
+                <h3>Switzerland</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Zermatt</p>
+                <p class="price">$399 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">Alpine peaks, glacier views, and luxury chalets.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+            <div class="destination-card" data-aos="fade-up" data-aos-delay="50">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/nepal.jpg') }}');"></div>
+              <div class="destination-info">
+                <h3>Nepal</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Kathmandu</p>
+                <p class="price">$199 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">Himalayan treks, ancient temples, and rich culture.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-section">
+          <div class="category-title">
+            <span class="category-icon">&#128040;</span>
+            Wildlife Safaris
+          </div>
+          <div class="category-divider"></div>
+          <p class="category-description">Witness the wild in its natural habitat, up close and personal.</p>
+          <div class="destinations-grid">
+            <div class="destination-card" data-aos="fade-up">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/kenya.jpg') }}');">
+                <span class="destination-badge">Featured</span>
+              </div>
+              <div class="destination-info">
+                <h3>Kenya</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Maasai Mara</p>
+                <p class="price">$349 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">The Big Five, endless savannah, and the Great Migration.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+            <div class="destination-card" data-aos="fade-up" data-aos-delay="50">
+              <div class="destination-image" style="background-image: url('{{ url_for('static', filename='images/tanzania.jpg') }}');"></div>
+              <div class="destination-info">
+                <h3>Tanzania</h3>
+                <p class="location"><i class="fas fa-map-pin" style="color: #d4af37;"></i> Serengeti</p>
+                <p class="price">$379 <span style="font-weight: 400; color: #6a6a6a; font-size: 0.85rem;">/ day</span></p>
+                <p class="description">Serengeti, Zanzibar, and Kilimanjaro - the complete safari.</p>
+                <a href="#" class="btn btn-outline btn-sm">Explore</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </section>
+
+  <!-- ===== CALL TO ACTION ===== -->
+  <section class="cta section" id="cta" aria-labelledby="cta-title">
+    <div class="container">
+      <h2 id="cta-title">Ready to Explore?</h2>
+      <p>Let our experts craft the perfect itinerary for your dream destination.</p>
+      <a href="/contact" class="btn btn-primary btn-lg">Plan Your Trip</a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  {% include 'footer.html' %}
+
+</body>
+</html>

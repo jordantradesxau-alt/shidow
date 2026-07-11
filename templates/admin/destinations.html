@@ -1,0 +1,142 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block title %}Manage Destinations{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1><i class="fas fa-map-marker-alt" style="color: #d4af37;"></i> Destinations</h1>
+    <p class="text-muted">Manage all destination listings for your travel platform.</p>
+  </div>
+  <a href="{{ url_for('admin_destination_create') }}" class="btn btn-primary">
+    <i class="fas fa-plus"></i> Add Destination
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="GET" class="row g-3">
+      <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="Search destinations..." value="{{ request.args.get('search', '') }}" />
+      </div>
+      <div class="col-md-3">
+        <select name="status" class="form-control">
+          <option value="">All Status</option>
+          <option value="active" {% if request.args.get('status') == 'active' %}selected{% endif %}>Active</option>
+          <option value="inactive" {% if request.args.get('status') == 'inactive' %}selected{% endif %}>Inactive</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="featured" class="form-control">
+          <option value="">All</option>
+          <option value="1" {% if request.args.get('featured') == '1' %}selected{% endif %}>Featured</option>
+          <option value="0" {% if request.args.get('featured') == '0' %}selected{% endif %}>Not Featured</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary btn-block">Filter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Destinations Table -->
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Country</th>
+            <th>Location</th>
+            <th>Category</th>
+            <th>Price/Day</th>
+            <th>Status</th>
+            <th>Featured</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dest in destinations %}
+          <tr>
+            <td>
+              {% if dest.cover_image %}
+              <img src="{{ url_for('static', filename='images/' + dest.cover_image) }}" 
+                   alt="{{ dest.location }}" 
+                   style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" />
+              {% else %}
+              <div style="width: 60px; height: 60px; background: #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+                <i class="fas fa-image"></i>
+              </div>
+              {% endif %}
+            </td>
+            <td><strong>{{ dest.country }}</strong></td>
+            <td>{{ dest.location }}</td>
+            <td><span class="badge badge-category">{{ dest.category }}</span></td>
+            <td><span class="price-text">${{ dest.price_per_day }}</span></td>
+            <td>
+              {% if dest.status == 'active' %}
+                <span class="badge badge-success">Active</span>
+              {% else %}
+                <span class="badge badge-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if dest.featured %}
+                <span class="badge badge-success"><i class="fas fa-star"></i> Featured</span>
+              {% else %}
+                <span class="badge badge-secondary">Standard</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm" role="group">
+                <a href="{{ url_for('admin_destination_edit', destination_id=dest.id) }}" 
+                   class="btn btn-outline-primary" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="{{ url_for('admin_destination_gallery', destination_id=dest.id) }}" 
+                   class="btn btn-outline-info" title="Gallery">
+                  <i class="fas fa-images"></i>
+                </a>
+                <a href="{{ url_for('single_destination', destination_id=dest.id) }}" 
+                   target="_blank" class="btn btn-outline-success" title="View">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="{{ url_for('admin_destination_delete', destination_id=dest.id) }}" 
+                   class="btn btn-outline-danger" title="Delete"
+                   onclick="return confirm('Are you sure you want to delete this destination? This action cannot be undone.')">
+                  <i class="fas fa-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center py-4">
+              <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: #d1d5db; display: block; margin-bottom: 8px;"></i>
+              <p class="text-muted">No destinations found. <a href="{{ url_for('admin_destination_create') }}">Add your first destination</a></p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination (placeholder - will implement in Phase 5) -->
+{% if destinations|length > 0 %}
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <p class="text-muted small">Showing {{ destinations|length }} destinations</p>
+  <nav>
+    <ul class="pagination pagination-sm">
+      <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+      <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+    </ul>
+  </nav>
+</div>
+{% endif %}
+{% endblock %}
