@@ -225,7 +225,29 @@ def admin_dashboard():
 
 # ============================================================
 # ADMIN - DESTINATIONS CRUD
+
 # ============================================================
+
+def upload_image(file, folder='destinations'):
+    """Upload an image to Supabase Storage and return the public URL"""
+    try:
+        # Generate unique filename
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        filename = f"{folder}/{uuid.uuid4().hex}.{ext}"
+        
+        # Upload to Supabase
+        response = supabase.storage.from_('images').upload(
+            filename,
+            file.read(),
+            {'content-type': file.content_type}
+        )
+        
+        # Get public URL
+        public_url = supabase.storage.from_('images').get_public_url(filename)
+        return public_url
+    except Exception as e:
+        print(f"Upload error: {e}")
+        return None
 
 @app.route('/admin/destinations')
 @login_required
