@@ -1,38 +1,25 @@
 <!-- ===== NAVBAR ===== -->
 <header class="navbar" id="navbar">
   <div class="container navbar-container">
+    <a href="/" class="logo">Shidow TOURS</a>
+
     <nav class="nav-menu" id="nav-menu" aria-label="Main navigation">
       <ul class="nav-list">
         <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">Home</a></li>
         <li><a href="{{ url_for('destinations') }}" class="{% if request.endpoint == 'destinations' %}active{% endif %}">Destinations</a></li>
         <li><a href="/packages" class="{% if request.endpoint == 'packages' %}active{% endif %}">Packages</a></li>
         <li><a href="/about" class="{% if request.endpoint == 'about' %}active{% endif %}">About</a></li>
-        <li><a href="/blog" class="{% if request.endpoint == 'blog' %}active{% endif %}">Blog</a></li>
         <li><a href="/contact" class="{% if request.endpoint == 'contact' %}active{% endif %}">Contact</a></li>
       </ul>
+
       <div class="nav-actions">
-        <!-- Language & Currency -->
-        <select class="lang-select" aria-label="Select language">
-          <option value="en">EN</option>
-          <option value="fr">FR</option>
-          <option value="de">DE</option>
-          <option value="es">ES</option>
-          <option value="it">IT</option>
-        </select>
-        <select class="currency-select" aria-label="Select currency">
-          <option value="usd">$ USD</option>
-          <option value="eur">€ EUR</option>
-          <option value="gbp">£ GBP</option>
-          <option value="kes">KSh KES</option>
-          <option value="zar">R ZAR</option>
-        </select>
-        <!-- Dark mode toggle -->
+        <!-- 🌓 Theme Toggle - IMPROVED -->
         <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
-          <span class="sun-icon">☀️</span>
-          <span class="moon-icon" style="display:none;">🌙</span>
+          <span id="theme-icon">🌙</span>
         </button>
       </div>
     </nav>
+
     <button class="hamburger" id="hamburger" aria-label="Toggle mobile menu" aria-expanded="false">
       <span class="bar"></span>
       <span class="bar"></span>
