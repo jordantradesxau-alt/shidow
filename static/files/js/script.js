@@ -4,7 +4,7 @@
    2.  Slider Initializers
        a. Popular Destinations Slider
        b. Top Packages Slider
-   3.  Dark Mode
+   3.  Theme Toggle (Dark Mode) - IMPROVED
    4.  Cookie Popup
    5.  Back to Top
    6.  Smooth Scroll
@@ -112,27 +112,38 @@
       }
     }
 
-    /* ===== 3. Dark Mode ===== */
-    function initDarkMode() {
-      var toggle = document.getElementById('dark-mode-toggle');
-      if (!toggle) return;
+    /* ===== 3. Theme Toggle (Dark Mode) - IMPROVED ===== */
+    function initThemeToggle() {
+      var toggleBtn = document.getElementById('theme-toggle');
+      if (!toggleBtn) return;
 
+      var icon = document.getElementById('theme-icon');
       var body = document.body;
-      var isDark = localStorage.getItem('darkMode') === 'true';
 
-      if (isDark) {
+      // Check saved preference
+      var savedTheme = localStorage.getItem('theme') || 'light';
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      // Set initial theme
+      if (savedTheme === 'dark' || (!localStorage.getItem('theme') && prefersDark)) {
         body.classList.add('dark-mode');
-        toggle.checked = true;
+        if (icon) icon.textContent = '☀️';
+      } else {
+        body.classList.remove('dark-mode');
+        if (icon) icon.textContent = '🌙';
       }
 
-      toggle.addEventListener('change', function() {
-        if (this.checked) {
-          body.classList.add('dark-mode');
-          localStorage.setItem('darkMode', 'true');
-        } else {
-          body.classList.remove('dark-mode');
-          localStorage.setItem('darkMode', 'false');
+      // Toggle on click
+      toggleBtn.addEventListener('click', function() {
+        var isDark = body.classList.toggle('dark-mode');
+
+        // Update icon
+        if (icon) {
+          icon.textContent = isDark ? '☀️' : '🌙';
         }
+
+        // Save preference
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
       });
     }
 
@@ -395,7 +406,10 @@
         console.warn('lightSlider not available, sliders will not be interactive.');
       }
 
-      initDarkMode();
+      // Theme Toggle - IMPROVED
+      initThemeToggle();
+
+      // Other features
       initCookiePopup();
       initBackToTop();
       initSmoothScroll();
