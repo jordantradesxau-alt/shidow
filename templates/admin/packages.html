@@ -65,7 +65,7 @@
           <tr>
             <td>
               {% if pkg.image %}
-              <img src="{{ url_for('static', filename='images/' + pkg.image) }}" 
+              <img src="{{ pkg.image }}" 
                    alt="{{ pkg.title }}" 
                    style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" />
               {% else %}
