@@ -5,7 +5,7 @@
    3.  Typography
    4.  Utilities
    5.  Buttons
-   6.  Navbar (overrides)
+   6.  Navbar (overrides) - UPDATED
    7.  Hero
    8.  Destinations (Slider)
    9.  Packages (Carousel)
@@ -17,8 +17,9 @@
   15.  Cookie Popup
   16.  Back to Top
   17.  WhatsApp Float
-  18.  Dark Mode
-  19.  Responsive Adjustments
+  18.  Dark Mode - UPDATED
+  19.  Theme Toggle - NEW
+  20.  Responsive Adjustments
 ============================================================ */
 
 /* ===== 1. CSS Variables ===== */
@@ -92,6 +93,7 @@ body {
   color: var(--color-text);
   line-height: 1.6;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 img {
@@ -233,13 +235,66 @@ h4 { font-size: 1.25rem; }
   font-weight: 700;
 }
 
-/* ===== 6. Navbar (overrides) ===== */
+/* ===== 6. Navbar (overrides) - FIXED ===== */
 .navbar {
   background: rgba(10, 10, 10, 0.92) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
+
+/* Force navbar to stay horizontal */
+.navbar-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+}
+
+.nav-menu {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 20px !important;
+  width: auto !important;
+  flex-wrap: nowrap !important;
+}
+
+.nav-list {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 24px !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-wrap: nowrap !important;
+}
+
+.nav-list li {
+  display: inline-block !important;
+}
+
+.nav-list a {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 500;
+  transition: color var(--transition-smooth);
+  padding: 8px 0;
+}
+
+.nav-list a:hover {
+  color: var(--color-gold) !important;
+}
+
+.nav-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important;
+}
+
 .navbar .nav-link {
   color: rgba(255, 255, 255, 0.85) !important;
   font-weight: 500;
@@ -252,6 +307,25 @@ h4 { font-size: 1.25rem; }
   font-weight: 700;
   color: var(--color-gold) !important;
   letter-spacing: 0.05em;
+}
+
+/* Mobile hamburger - hidden on desktop */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hamburger .bar {
+  width: 25px;
+  height: 3px;
+  background: var(--color-white);
+  border-radius: 5px;
+  transition: all var(--transition-smooth);
 }
 
 /* ===== 7. Hero ===== */
@@ -859,14 +933,33 @@ h4 { font-size: 1.25rem; }
   transform: scale(1.1);
 }
 
-/* ===== 18. Dark Mode ===== */
+/* ===== 18. Theme Toggle ===== */
+.theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 4px 10px;
+  border-radius: 30px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1) rotate(15deg);
+  background: rgba(212, 175, 55, 0.15);
+}
+
+/* ===== 19. Dark Mode - UPDATED ===== */
 body.dark-mode {
   background-color: var(--color-dark);
   color: #eee;
 }
+
 body.dark-mode .section-header h2 {
   color: var(--color-white);
 }
+
 body.dark-mode .dest-info {
   background: rgba(20, 20, 20, 0.8);
 }
@@ -876,6 +969,7 @@ body.dark-mode .dest-info h3 {
 body.dark-mode .dest-info p {
   color: rgba(255, 255, 255, 0.7);
 }
+
 body.dark-mode .package-card {
   background: #1e1e1e;
   border-color: #2a2a2a;
@@ -889,6 +983,7 @@ body.dark-mode .package-meta {
 body.dark-mode .package-content p {
   color: rgba(255, 255, 255, 0.7);
 }
+
 body.dark-mode .review-content {
   background: #1e1e1e;
 }
@@ -898,6 +993,7 @@ body.dark-mode .review-content p {
 body.dark-mode .author-name {
   color: var(--color-white);
 }
+
 body.dark-mode .country-flag {
   background: #1e1e1e;
   color: #ddd;
@@ -906,9 +1002,11 @@ body.dark-mode .country-flag:hover {
   background: var(--color-gold);
   color: var(--color-white);
 }
+
 body.dark-mode .cookie-popup {
   background: rgba(20, 20, 20, 0.95);
 }
+
 body.dark-mode .carousel-prev,
 body.dark-mode .carousel-next {
   background: #2a2a2a;
@@ -916,7 +1014,28 @@ body.dark-mode .carousel-next {
   border-color: #3a3a3a;
 }
 
-/* ===== 19. Responsive Adjustments ===== */
+body.dark-mode .navbar {
+  background: rgba(18, 18, 18, 0.95) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+body.dark-mode .nav-list a {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+body.dark-mode .nav-list a:hover {
+  color: var(--color-gold) !important;
+}
+
+body.dark-mode .theme-toggle {
+  color: #f0f0f0;
+}
+
+body.dark-mode .theme-toggle:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+/* ===== 20. Responsive Adjustments ===== */
 @media (max-width: 992px) {
   .hero-title { font-size: 2.8rem; }
   .hero-search { padding: var(--spacing-md); }
@@ -933,6 +1052,51 @@ body.dark-mode .carousel-next {
   .hero-search { flex-direction: column; align-items: stretch; }
   .search-group { flex: 1 1 auto; }
   .btn-search { width: 100%; }
+
+  /* Mobile Navbar */
+  .nav-menu {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background: var(--color-dark);
+    flex-direction: column !important;
+    padding: 30px;
+    gap: 20px !important;
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 999;
+  }
+
+  .nav-menu.open {
+    transform: translateX(0);
+  }
+
+  .nav-list {
+    flex-direction: column !important;
+    gap: 16px !important;
+    align-items: center;
+    width: 100%;
+  }
+
+  .nav-list li {
+    display: block !important;
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-actions {
+    flex-direction: row !important;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .hamburger {
+    display: flex !important;
+  }
 
   .destinations-slider-wrapper,
   .packages-slider-wrapper {
