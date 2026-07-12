@@ -63,7 +63,7 @@
           <tr>
             <td>
               {% if dest.cover_image %}
-              <img src="{{ url_for('static', filename='images/' + dest.cover_image) }}" 
+              <img src="{{ dest.cover_image }}" 
                    alt="{{ dest.location }}" 
                    style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" />
               {% else %}
@@ -126,7 +126,7 @@
   </div>
 </div>
 
-<!-- Pagination (placeholder - will implement in Phase 5) -->
+<!-- Pagination -->
 {% if destinations|length > 0 %}
 <div class="d-flex justify-content-between align-items-center mt-3">
   <p class="text-muted small">Showing {{ destinations|length }} destinations</p>
