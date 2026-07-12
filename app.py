@@ -3,9 +3,11 @@ Shidow Tours & Adventures
 Flask Application - Production Ready
 Deployment: Render
 Database: PostgreSQL (Supabase via psycopg2)
+Storage: Supabase Storage
 """
 
 import os
+import uuid
 import psycopg2
 import psycopg2.extras
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
@@ -25,10 +27,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['DATABASE_URL'] = os.environ.get('DATABASE_URL')
 
-# Supabase configuration
+# Supabase Configuration
 SUPABASE_URL = os.environ.get('SUPABASE_URL')
 SUPABASE_KEY = os.environ.get('SUPABASE_KEY')
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY) if SUPABASE_URL and SUPABASE_KEY else None
 
 # ============================================================
 # DATABASE CONNECTION HELPER
@@ -59,6 +61,42 @@ def close_db_connection(conn, cursor=None):
             conn.close()
     except Exception as e:
         print(f"Error closing database connection: {e}")
+
+# ============================================================
+# IMAGE UPLOAD HELPER
+# ============================================================
+
+def upload_image(file, folder='destinations'):
+    """
+    Upload an image to Supabase Storage and return the public URL.
+    """
+    if not supabase:
+        print("Supabase client not initialized")
+        return None
+    
+    if not file or not file.filename:
+        return None
+    
+    try:
+        # Get file extension
+        ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'jpg'
+        
+        # Generate unique filename
+        filename = f"{folder}/{uuid.uuid4().hex}.{ext}"
+        
+        # Upload to Supabase
+        response = supabase.storage.from_('images').upload(
+            filename,
+            file.read(),
+            {'content-type': file.content_type or 'image/jpeg'}
+        )
+        
+        # Get public URL
+        public_url = supabase.storage.from_('images').get_public_url(filename)
+        return public_url
+    except Exception as e:
+        print(f"Upload error: {e}")
+        return None
 
 # ============================================================
 # AUTHENTICATION DECORATOR
@@ -155,11 +193,7 @@ def admin_logout():
 @login_required
 def admin_dashboard():
     """
-    Admin dashboard displaying key metrics:
-    - Total destinations
-    - Total packages
-    - Featured items count
-    - Recent activity
+    Admin dashboard displaying key metrics.
     """
     conn = get_db_connection()
     if not conn:
@@ -173,7 +207,6 @@ def admin_dashboard():
     try:
         cursor = conn.cursor()
         
-        # Get counts
         cursor.execute("SELECT COUNT(*) as count FROM destinations")
         total_destinations = cursor.fetchone()['count']
         
@@ -186,7 +219,6 @@ def admin_dashboard():
         cursor.execute("SELECT COUNT(*) as count FROM packages WHERE featured = true")
         featured_packages = cursor.fetchone()['count']
         
-        # Get recent destinations
         cursor.execute("""
             SELECT id, country, location, category, featured, created_at 
             FROM destinations 
@@ -195,7 +227,6 @@ def admin_dashboard():
         """)
         recent_destinations = cursor.fetchall()
         
-        # Get recent packages
         cursor.execute("""
             SELECT id, title, badge, price, featured, created_at 
             FROM packages 
@@ -225,74 +256,7 @@ def admin_dashboard():
 
 # ============================================================
 # ADMIN - DESTINATIONS CRUD
-
 # ============================================================
-
-def upload_image(file, folder='destinations'):
-    """Upload an image to Supabase Storage and return the public URL"""
-    try:
-        # Generate unique filename
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        filename = f"{folder}/{uuid.uuid4().hex}.{ext}"
-        
-        # Upload to Supabase
-        response = supabase.storage.from_('images').upload(
-            filename,
-            file.read(),
-            {'content-type': file.content_type}
-        )
-        
-        # Get public URL
-        public_url = supabase.storage.from_('images').get_public_url(filename)
-        return public_url
-    except Exception as e:
-        print(f"Upload error: {e}")
-        return None
-
-
-
-
-
-@app.route('/admin/destinations/create', methods=['GET', 'POST'])
-@login_required
-def admin_destination_create():
-    if request.method == 'POST':
-        # Get form data
-        country = request.form.get('country', '').strip()
-        location = request.form.get('location', '').strip()
-        category = request.form.get('category', '').strip()
-        price_per_day = request.form.get('price_per_day', 0)
-        minimum_days = request.form.get('minimum_days', 1)
-        description = request.form.get('description', '').strip()
-        featured = request.form.get('featured') == 'on'
-        status = request.form.get('status', 'active')
-        
-        # Handle image upload
-        cover_image = None
-        if 'cover_image' in request.files:
-            file = request.files['cover_image']
-            if file and file.filename:
-                cover_image = upload_image(file, 'destinations')
-        
-        # Save to database
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO destinations 
-            (country, location, category, price_per_day, minimum_days, 
-             description, cover_image, featured, status, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
-        """, (country, location, category, price_per_day, minimum_days, 
-              description, cover_image, featured, status))
-        conn.commit()
-        close_db_connection(conn, cursor)
-        
-        flash('Destination created successfully!', 'success')
-        return redirect(url_for('admin_destinations'))
-    
-    return render_template('admin/destination_form.html')
-
-
 
 @app.route('/admin/destinations')
 @login_required
@@ -309,7 +273,7 @@ def admin_destinations():
         cursor = conn.cursor()
         cursor.execute("""
             SELECT id, country, location, category, price_per_day, 
-                   minimum_days, featured, status, created_at 
+                   minimum_days, cover_image, featured, status, created_at 
             FROM destinations 
             ORDER BY created_at DESC
         """)
@@ -326,9 +290,7 @@ def admin_destinations():
 @login_required
 def admin_destination_create():
     """
-    Create a new destination.
-    GET: Display form.
-    POST: Save new destination.
+    Create a new destination with image upload.
     """
     if request.method == 'POST':
         country = request.form.get('country', '').strip()
@@ -337,21 +299,29 @@ def admin_destination_create():
         price_per_day = request.form.get('price_per_day', 0)
         minimum_days = request.form.get('minimum_days', 1)
         description = request.form.get('description', '').strip()
-        cover_image = request.form.get('cover_image', '').strip()
         featured = request.form.get('featured') == 'on'
         status = request.form.get('status', 'active')
         
-        # Validation
         if not country or not location or not category:
             flash('Country, location, and category are required.', 'danger')
             return render_template('admin/destination_form.html')
         
         try:
-            price_per_day = float(price_per_day)
-            minimum_days = int(minimum_days)
+            price_per_day = float(price_per_day) if price_per_day else 0
+            minimum_days = int(minimum_days) if minimum_days else 1
         except ValueError:
             flash('Invalid price or days value.', 'danger')
             return render_template('admin/destination_form.html')
+        
+        # Handle image upload
+        cover_image = None
+        if 'cover_image' in request.files:
+            file = request.files['cover_image']
+            if file and file.filename:
+                cover_image = upload_image(file, 'destinations')
+                if not cover_image:
+                    flash('Failed to upload image. Please try again.', 'danger')
+                    return render_template('admin/destination_form.html')
         
         conn = get_db_connection()
         if not conn:
@@ -382,31 +352,11 @@ def admin_destination_create():
     
     return render_template('admin/destination_form.html')
 
-@app.route('/admin/destinations/<int:destination_id>/gallery', methods=['GET', 'POST'])
-@login_required
-def admin_destination_gallery(destination_id):
-    if request.method == 'POST':
-        if 'image' in request.files:
-            file = request.files['image']
-            if file and file.filename:
-                image_url = upload_image(file, f'gallery/{destination_id}')
-                if image_url:
-                    cursor.execute("""
-                        INSERT INTO destination_gallery (destination_id, image, display_order)
-                        VALUES (%s, %s, %s)
-                    """, (destination_id, image_url, int(request.form.get('display_order', 0))))
-                    conn.commit()
-                    flash('Image uploaded successfully!', 'success')
-                else:
-                    flash('Failed to upload image.', 'danger')
-
 @app.route('/admin/destinations/edit/<int:destination_id>', methods=['GET', 'POST'])
 @login_required
 def admin_destination_edit(destination_id):
     """
-    Edit an existing destination.
-    GET: Display form with existing data.
-    POST: Update destination.
+    Edit an existing destination with image upload.
     """
     conn = get_db_connection()
     if not conn:
@@ -430,7 +380,6 @@ def admin_destination_edit(destination_id):
             price_per_day = request.form.get('price_per_day', 0)
             minimum_days = request.form.get('minimum_days', 1)
             description = request.form.get('description', '').strip()
-            cover_image = request.form.get('cover_image', '').strip()
             featured = request.form.get('featured') == 'on'
             status = request.form.get('status', 'active')
             
@@ -440,12 +389,23 @@ def admin_destination_edit(destination_id):
                 return render_template('admin/destination_form.html', destination=destination)
             
             try:
-                price_per_day = float(price_per_day)
-                minimum_days = int(minimum_days)
+                price_per_day = float(price_per_day) if price_per_day else 0
+                minimum_days = int(minimum_days) if minimum_days else 1
             except ValueError:
                 flash('Invalid price or days value.', 'danger')
                 close_db_connection(conn, cursor)
                 return render_template('admin/destination_form.html', destination=destination)
+            
+            # Handle image upload
+            cover_image = destination['cover_image']
+            if 'cover_image' in request.files:
+                file = request.files['cover_image']
+                if file and file.filename:
+                    cover_image = upload_image(file, 'destinations')
+                    if not cover_image:
+                        flash('Failed to upload image. Please try again.', 'danger')
+                        close_db_connection(conn, cursor)
+                        return render_template('admin/destination_form.html', destination=destination)
             
             cursor.execute("""
                 UPDATE destinations SET
@@ -480,7 +440,7 @@ def admin_destination_edit(destination_id):
 @login_required
 def admin_destination_delete(destination_id):
     """
-    Delete a destination (hard delete).
+    Delete a destination.
     """
     conn = get_db_connection()
     if not conn:
@@ -535,7 +495,7 @@ def admin_packages():
 @login_required
 def admin_package_create():
     """
-    Create a new package.
+    Create a new package with image upload.
     """
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
@@ -543,7 +503,6 @@ def admin_package_create():
         duration = request.form.get('duration', '').strip()
         price = request.form.get('price', 0)
         description = request.form.get('description', '').strip()
-        image = request.form.get('image', '').strip()
         featured = request.form.get('featured') == 'on'
         status = request.form.get('status', 'active')
         
@@ -552,10 +511,20 @@ def admin_package_create():
             return render_template('admin/package_form.html')
         
         try:
-            price = float(price)
+            price = float(price) if price else 0
         except ValueError:
             flash('Invalid price value.', 'danger')
             return render_template('admin/package_form.html')
+        
+        # Handle image upload
+        image = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename:
+                image = upload_image(file, 'packages')
+                if not image:
+                    flash('Failed to upload image. Please try again.', 'danger')
+                    return render_template('admin/package_form.html')
         
         conn = get_db_connection()
         if not conn:
@@ -587,7 +556,7 @@ def admin_package_create():
 @login_required
 def admin_package_edit(package_id):
     """
-    Edit an existing package.
+    Edit an existing package with image upload.
     """
     conn = get_db_connection()
     if not conn:
@@ -610,7 +579,6 @@ def admin_package_edit(package_id):
             duration = request.form.get('duration', '').strip()
             price = request.form.get('price', 0)
             description = request.form.get('description', '').strip()
-            image = request.form.get('image', '').strip()
             featured = request.form.get('featured') == 'on'
             status = request.form.get('status', 'active')
             
@@ -620,11 +588,22 @@ def admin_package_edit(package_id):
                 return render_template('admin/package_form.html', package=package)
             
             try:
-                price = float(price)
+                price = float(price) if price else 0
             except ValueError:
                 flash('Invalid price value.', 'danger')
                 close_db_connection(conn, cursor)
                 return render_template('admin/package_form.html', package=package)
+            
+            # Handle image upload
+            image = package['image']
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and file.filename:
+                    image = upload_image(file, 'packages')
+                    if not image:
+                        flash('Failed to upload image. Please try again.', 'danger')
+                        close_db_connection(conn, cursor)
+                        return render_template('admin/package_form.html', package=package)
             
             cursor.execute("""
                 UPDATE packages SET
@@ -686,8 +665,6 @@ def admin_package_delete(package_id):
 def admin_package_itinerary(package_id):
     """
     Manage package itinerary (package_destinations).
-    GET: Display current itinerary and available destinations.
-    POST: Update itinerary.
     """
     conn = get_db_connection()
     if not conn:
@@ -697,7 +674,6 @@ def admin_package_itinerary(package_id):
     try:
         cursor = conn.cursor()
         
-        # Get package info
         cursor.execute("SELECT id, title FROM packages WHERE id = %s", (package_id,))
         package = cursor.fetchone()
         
@@ -706,7 +682,6 @@ def admin_package_itinerary(package_id):
             close_db_connection(conn, cursor)
             return redirect(url_for('admin_packages'))
         
-        # Get current itinerary
         cursor.execute("""
             SELECT pd.id, pd.package_id, pd.destination_id, pd.day_order,
                    d.country, d.location, d.cover_image
@@ -717,7 +692,6 @@ def admin_package_itinerary(package_id):
         """, (package_id,))
         itinerary = cursor.fetchall()
         
-        # Get all available destinations
         cursor.execute("""
             SELECT id, country, location, category 
             FROM destinations 
@@ -727,14 +701,11 @@ def admin_package_itinerary(package_id):
         available_destinations = cursor.fetchall()
         
         if request.method == 'POST':
-            # Process itinerary update
             destination_ids = request.form.getlist('destinations[]')
             day_orders = request.form.getlist('day_orders[]')
             
-            # Delete existing itinerary
             cursor.execute("DELETE FROM package_destinations WHERE package_id = %s", (package_id,))
             
-            # Insert new itinerary
             for dest_id, day_order in zip(destination_ids, day_orders):
                 if dest_id and day_order:
                     cursor.execute("""
@@ -767,8 +738,6 @@ def admin_package_itinerary(package_id):
 def admin_destination_gallery(destination_id):
     """
     Manage destination gallery images.
-    GET: Display current gallery and upload form.
-    POST: Upload new image.
     """
     conn = get_db_connection()
     if not conn:
@@ -778,7 +747,6 @@ def admin_destination_gallery(destination_id):
     try:
         cursor = conn.cursor()
         
-        # Get destination info
         cursor.execute("SELECT id, country, location FROM destinations WHERE id = %s", (destination_id,))
         destination = cursor.fetchone()
         
@@ -787,7 +755,6 @@ def admin_destination_gallery(destination_id):
             close_db_connection(conn, cursor)
             return redirect(url_for('admin_destinations'))
         
-        # Get gallery images
         cursor.execute("""
             SELECT id, destination_id, image, display_order 
             FROM destination_gallery 
@@ -797,23 +764,25 @@ def admin_destination_gallery(destination_id):
         gallery = cursor.fetchall()
         
         if request.method == 'POST':
-            # Upload new image
-            image_url = request.form.get('image_url', '').strip()
             display_order = request.form.get('display_order', 0)
             
-            if image_url:
-                try:
-                    cursor.execute("""
-                        INSERT INTO destination_gallery (destination_id, image, display_order)
-                        VALUES (%s, %s, %s)
-                    """, (destination_id, image_url, int(display_order)))
-                    conn.commit()
-                    flash('Image added to gallery!', 'success')
-                except Exception as e:
-                    print(f"Gallery upload error: {e}")
-                    flash('Error uploading image.', 'danger')
+            if 'image' in request.files:
+                file = request.files['image']
+                if file and file.filename:
+                    image_url = upload_image(file, f'gallery/{destination_id}')
+                    if image_url:
+                        cursor.execute("""
+                            INSERT INTO destination_gallery (destination_id, image, display_order)
+                            VALUES (%s, %s, %s)
+                        """, (destination_id, image_url, int(display_order)))
+                        conn.commit()
+                        flash('Image uploaded successfully!', 'success')
+                    else:
+                        flash('Failed to upload image.', 'danger')
+                else:
+                    flash('Please select an image file.', 'warning')
             else:
-                flash('Please provide an image URL.', 'warning')
+                flash('No image file provided.', 'warning')
             
             close_db_connection(conn, cursor)
             return redirect(url_for('admin_destination_gallery', destination_id=destination_id))
@@ -868,10 +837,7 @@ def admin_gallery_delete(gallery_id):
 @app.route('/')
 def index():
     """
-    Landing page displaying:
-    - Featured countries
-    - Popular destinations
-    - Featured packages
+    Landing page displaying featured destinations and packages.
     """
     conn = get_db_connection()
     if not conn:
@@ -883,7 +849,6 @@ def index():
     try:
         cursor = conn.cursor()
         
-        # Get featured destinations (limit 6)
         cursor.execute("""
             SELECT id, country, location, category, price_per_day, 
                    minimum_days, description, cover_image 
@@ -894,7 +859,6 @@ def index():
         """)
         featured_destinations = cursor.fetchall()
         
-        # Get popular destinations (grouped by country - limit 4 countries)
         cursor.execute("""
             SELECT DISTINCT ON (country) 
                    id, country, location, category, cover_image,
@@ -906,7 +870,6 @@ def index():
         """)
         popular_destinations = cursor.fetchall()
         
-        # Get featured packages (limit 3)
         cursor.execute("""
             SELECT id, title, badge, duration, price, description, image 
             FROM packages 
@@ -978,8 +941,7 @@ def destinations():
 @app.route('/destination/<int:destination_id>')
 def single_destination(destination_id):
     """
-    Single destination page.
-    Displays destination details, gallery, and related destinations by category.
+    Single destination page with details, gallery, and related destinations.
     """
     conn = get_db_connection()
     if not conn:
@@ -989,7 +951,6 @@ def single_destination(destination_id):
     try:
         cursor = conn.cursor()
         
-        # Get destination details
         cursor.execute("""
             SELECT id, country, location, category, price_per_day, 
                    minimum_days, description, cover_image, featured
@@ -1003,7 +964,6 @@ def single_destination(destination_id):
             flash('Destination not found.', 'danger')
             return redirect(url_for('destinations'))
         
-        # Get gallery images
         cursor.execute("""
             SELECT id, image, display_order 
             FROM destination_gallery 
@@ -1012,7 +972,6 @@ def single_destination(destination_id):
         """, (destination_id,))
         gallery = cursor.fetchall()
         
-        # Get related destinations (same category, excluding current)
         cursor.execute("""
             SELECT id, country, location, category, price_per_day, 
                    description, cover_image 
@@ -1043,8 +1002,7 @@ def single_destination(destination_id):
 @app.route('/package/<int:package_id>')
 def single_package(package_id):
     """
-    Single package page.
-    Displays package details and itinerary destinations.
+    Single package page with details and itinerary.
     """
     conn = get_db_connection()
     if not conn:
@@ -1054,7 +1012,6 @@ def single_package(package_id):
     try:
         cursor = conn.cursor()
         
-        # Get package details
         cursor.execute("""
             SELECT id, title, badge, duration, price, description, image, featured
             FROM packages 
@@ -1067,7 +1024,6 @@ def single_package(package_id):
             flash('Package not found.', 'danger')
             return redirect(url_for('index'))
         
-        # Get itinerary (ordered destinations)
         cursor.execute("""
             SELECT pd.id, pd.day_order,
                    d.id as destination_id, d.country, d.location, 
